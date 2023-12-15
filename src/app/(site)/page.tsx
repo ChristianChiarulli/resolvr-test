@@ -76,7 +76,7 @@ export default async function HomePage({
   let cacheTags: string[] = [];
 
   if (selectedTab === "open") {
-    cacheTags = ["bounties"];
+    cacheTags = [`open-bounties-${publicKey}`];
   }
   if (selectedTab === "posted") {
     cacheTags = [`posted-bounties-${publicKey}`];
@@ -94,13 +94,32 @@ export default async function HomePage({
 
   let initialBountyEvents = await getCachedEvents(params);
 
+  const pubkeys = initialBountyEvents.map((event) => event.pubkey);
+
+  const profiles: Event[] = [];
+
+  for (const pubkey of pubkeys) {
+    const getCachedProfile = unstable_cache(
+      async (pubkey: string) => {
+        const profile = await nq.fetchProfile({
+          pubkey,
+          relays: ["wss://nos.lol", "wss://relay.damus.io"],
+        });
+        return profile;
+      },
+      undefined,
+      { tags: [pubkey], revalidate: 60 },
+    );
+    const profile = await getCachedProfile(pubkey);
+    if (profile) {
+      profiles.push(profile);
+    }
+  }
 
   // HACK: this is a workaround for dealing with passing symbols
   initialBountyEvents = JSON.parse(
     JSON.stringify(initialBountyEvents),
   ) as Event[];
-
-  // console.log("initialBountyEvents: ", initialBountyEvents);
 
   return (
     <div className="min-h-screen w-full flex-col items-center">
@@ -139,10 +158,18 @@ export default async function HomePage({
       </div>
 
       {selectedTab === "open" && (
-        <OpenBounties initialBounties={initialBountyEvents} filter={filter} />
+        <OpenBounties
+          initialBounties={initialBountyEvents}
+          filter={filter}
+          initialProfiles={profiles}
+        />
       )}
       {selectedTab === "posted" && loggedIn && (
-        <PostedBounties initialBounties={initialBountyEvents} filter={filter} />
+        <PostedBounties
+          initialBounties={initialBountyEvents}
+          filter={filter}
+          initialProfiles={profiles}
+        />
       )}
     </div>
   );

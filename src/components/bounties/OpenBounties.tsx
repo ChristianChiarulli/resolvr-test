@@ -1,5 +1,9 @@
 "use client";
 
+import { useEffect } from "react";
+
+import nq from "~/nostr-query";
+import { revalidateCachedTag } from "~/nostr-query/server";
 import { type UseListEventsParams } from "~/nostr-query/types";
 import useListEvents from "~/nostr-query/useListEvents";
 import useEventStore from "~/store/event-store";
@@ -10,17 +14,28 @@ import { type Event, type Filter } from "nostr-tools";
 import { Button } from "../ui/button";
 import Bounty from "./Bounty";
 import BountyLoadButton from "./BountyLoadButton";
-import nq from "~/nostr-query";
-import { revalidateCachedTag } from "~/nostr-query/server";
 
 type Props = {
   initialBounties: Event[];
   filter: Filter;
+  initialProfiles: Event[];
 };
 
-export default function OpenBounties({ initialBounties, filter }: Props) {
-  const { newBountyEvents, setNewBountyEvents } = useEventStore();
+export default function OpenBounties({
+  initialBounties,
+  filter,
+  initialProfiles,
+}: Props) {
+  const { newBountyEvents, setNewBountyEvents, addProfile } = useEventStore();
   const { subRelays } = useRelayStore();
+
+  useEffect(() => {
+    if (initialProfiles.length > 0) {
+      initialProfiles.forEach((profile) => {
+        addProfile(profile.pubkey, profile);
+      });
+    }
+  }, [initialProfiles]);
 
   const params: UseListEventsParams = {
     filter: filter,
