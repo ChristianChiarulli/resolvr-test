@@ -1,12 +1,10 @@
-import { cache } from "react";
-
 import OpenBounties from "~/components/bounties/OpenBounties";
 import PostedBounties from "~/components/bounties/PostedBounties";
 import { cn } from "~/lib/utils";
 import nq from "~/nostr-query";
 import { type ListEventsParams } from "~/nostr-query/types";
 import { type UserWithKeys } from "~/types";
-import { AlertCircle, NewspaperIcon, Upload, User2 } from "lucide-react";
+import { NewspaperIcon, Upload, User2 } from "lucide-react";
 import { getServerSession } from "next-auth";
 import { unstable_cache } from "next/cache";
 import Link from "next/link";
