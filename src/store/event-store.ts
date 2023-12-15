@@ -13,6 +13,11 @@ export interface EventState {
   setOpenBountyEvents: (events: Event[]) => void;
   removeOpenBountyEvent: (id: string) => void;
 
+  assignedBountyEvents: Event[];
+  addAssignedBountyEvent: (event: Event) => void;
+  setAssignedBountyEvents: (events: Event[]) => void;
+  removeAssignedBountyEvent: (id: string) => void;
+
   profileMap: Record<string, Event | null>;
   addProfile: (pubkey: string, userEvent: Event) => void;
 
@@ -42,6 +47,19 @@ const useEventStore = create<EventState>()(
     removeOpenBountyEvent: (id) =>
       set((prev) => ({
         openBountyEvents: prev.openBountyEvents.filter((e) => e.id !== id),
+      })),
+
+    assignedBountyEvents: [],
+    addAssignedBountyEvent: (event) =>
+      set((prev) => ({
+        assignedBountyEvents: [...prev.assignedBountyEvents, event],
+      })),
+    setAssignedBountyEvents: (events) => set({ assignedBountyEvents: events }),
+    removeAssignedBountyEvent: (id) =>
+      set((prev) => ({
+        assignedBountyEvents: prev.assignedBountyEvents.filter(
+          (e) => e.id !== id,
+        ),
       })),
 
     profileMap: {},

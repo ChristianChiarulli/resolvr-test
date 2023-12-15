@@ -13,15 +13,9 @@ import Link from "next/link";
 import { type Event, type Filter } from "nostr-tools";
 
 import { authOptions } from "../api/auth/[...nextauth]/auth";
+import AssignedBounties from "~/components/bounties/AssignedBounties";
 
-let tabs = [
-  { name: "open", icon: NewspaperIcon },
-  // { name: "posted", icon: Upload },
-  // { name: "assigned", icon: User2 },
-  // { name: "disputed", icon: AlertCircle },
-];
-
-// export default async function HomePage() {
+let tabs = [{ name: "open", icon: NewspaperIcon }];
 
 export default async function HomePage({
   searchParams,
@@ -35,20 +29,18 @@ export default async function HomePage({
   let publicKey = "";
 
   if (session?.user) {
-    // console.log("session: ", session);
     const user = session?.user as UserWithKeys;
     publicKey = user.publicKey;
     if (publicKey) {
       loggedIn = true;
+      tabs = [
+        { name: "open", icon: NewspaperIcon },
+        { name: "posted", icon: Upload },
+        { name: "assigned", icon: User2 },
+        // { name: "disputed", icon: AlertCircle },
+      ];
     }
   }
-
-  tabs = [
-    { name: "open", icon: NewspaperIcon },
-    { name: "posted", icon: Upload },
-    { name: "assigned", icon: User2 },
-    { name: "disputed", icon: AlertCircle },
-  ];
 
   const filter: Filter = {
     kinds: [30050],
@@ -63,10 +55,9 @@ export default async function HomePage({
     filter.authors = [publicKey];
   }
 
-  // console.log("selectedTab: ", selectedTab);
-  // console.log("publicKey: ", publicKey);
-  // console.log("loggedIn: ", loggedIn);
-  // console.log("filter: ", filter);
+  if (selectedTab === "assigned") {
+    filter["#p"] = [publicKey];
+  }
 
   const params: ListEventsParams = {
     filter,
@@ -80,6 +71,9 @@ export default async function HomePage({
   }
   if (selectedTab === "posted") {
     cacheTags = [`posted-bounties-${publicKey}`];
+  }
+  if (selectedTab === "assigned") {
+    cacheTags = [`assigned-bounties-${publicKey}`];
   }
 
   const getCachedEvents = unstable_cache(
@@ -166,6 +160,13 @@ export default async function HomePage({
       )}
       {selectedTab === "posted" && loggedIn && (
         <PostedBounties
+          initialBounties={initialBountyEvents}
+          filter={filter}
+          initialProfiles={profiles}
+        />
+      )}
+      {selectedTab === "assigned" && loggedIn && (
+        <AssignedBounties
           initialBounties={initialBountyEvents}
           filter={filter}
           initialProfiles={profiles}
