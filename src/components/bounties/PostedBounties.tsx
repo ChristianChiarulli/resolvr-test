@@ -1,21 +1,37 @@
 "use client";
 
+import { useEffect } from "react";
+
 import { type UseListEventsParams } from "~/nostr-query/types";
 import useListEvents from "~/nostr-query/useListEvents";
 import useEventStore from "~/store/event-store";
 import { useRelayStore } from "~/store/relay-store";
 import { type Event, type Filter } from "nostr-tools";
+
 import Bounty from "./Bounty";
 import BountyLoadButton from "./BountyLoadButton";
 
 type Props = {
   initialBounties: Event[];
   filter: Filter;
+  initialProfiles: Event[];
 };
 
-export default function OpenBounties({ initialBounties, filter }: Props) {
-  const { openBountyEvents, setOpenBountyEvents } = useEventStore();
+export default function OpenBounties({
+  initialBounties,
+  filter,
+  initialProfiles,
+}: Props) {
+  const { openBountyEvents, setOpenBountyEvents, addProfile } = useEventStore();
   const { subRelays } = useRelayStore();
+
+  useEffect(() => {
+    if (initialProfiles.length > 0) {
+      initialProfiles.forEach((profile) => {
+        addProfile(profile.pubkey, profile);
+      });
+    }
+  }, [initialProfiles]);
 
   const params: UseListEventsParams = {
     filter: filter,
@@ -37,7 +53,7 @@ export default function OpenBounties({ initialBounties, filter }: Props) {
 
   return (
     <>
-      <ul className="flex flex-col w-full">
+      <ul className="flex w-full flex-col">
         {(openBountyEvents.length > 0 ? openBountyEvents : initialBounties).map(
           (bountyEvent) => (
             <Bounty key={bountyEvent.id} bountyEvent={bountyEvent} />
