@@ -1,17 +1,16 @@
 import { useCallback, useState } from "react";
 
+import nq from "~/nostr-query";
 import {
   type PublishEventStatus,
   type UsePublishEventParams,
 } from "~/nostr-query/types";
 import { type Event } from "nostr-tools";
 
-import defaultPool from "./pool";
-
 // TODO: expose callback functions for success and error
 // TODO: add retry logic
 const usePublishEvent = ({
-  pool = defaultPool,
+  pool,
   relays,
   // onSuccess = () => {},
   // onError = () => {},
@@ -27,23 +26,14 @@ const usePublishEvent = ({
         setStatus("error");
         return null;
       }
-      const pubs = pool.publish(relays, event);
 
-      try {
-        await Promise.allSettled(pubs);
-      } catch (e) {
-        console.error("Error publishing event: ", e);
-        setStatus("error");
-      }
+      const params = {
+        relays: relays,
+        event: event,
+        onSeen: onSeen,
+      };
 
-      const publishedEvent = await pool.get(relays, {
-        ids: [event.id],
-      });
-
-      if (publishedEvent) {
-        onSeen(publishedEvent);
-        setStatus("success");
-      }
+      const publishedEvent = await nq.publish(params);
 
       return publishedEvent;
     },
