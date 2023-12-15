@@ -76,7 +76,7 @@ export default async function HomePage({
   let cacheTags: string[] = [];
 
   if (selectedTab === "open") {
-    cacheTags = [`open-bounties-${publicKey}`];
+    cacheTags = ["open-bounties", `open-bounties-${publicKey}`];
   }
   if (selectedTab === "posted") {
     cacheTags = [`posted-bounties-${publicKey}`];
