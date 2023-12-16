@@ -37,7 +37,7 @@ export default function Bounty({ initialBounty, selectedTab, filter }: Props) {
   const params: UseGetEventParams = {
     filter: filter,
     relays: subRelays,
-    initialEvent: currentBounty || initialBounty,
+    initialEvent: currentBounty ?? initialBounty,
     onEventResolved: (event) => {
       setCurrentBounty(event);
     },
