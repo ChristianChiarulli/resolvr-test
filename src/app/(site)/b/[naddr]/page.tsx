@@ -79,7 +79,7 @@ export default async function BountyPage({
       return await nq.get(params);
     },
     undefined,
-    { tags: [`${identifier}-${pubkey}`], revalidate: 10 },
+    { tags: [`${identifier}`], revalidate: 10 },
   );
 
   let bountyEvent = await getCachedEvents(getEventparams);
