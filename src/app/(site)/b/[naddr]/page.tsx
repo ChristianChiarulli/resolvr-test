@@ -39,11 +39,13 @@ export default async function BountyPage({
     return <InvalidNaddr />;
   }
 
-  let pubkey = "";
-
   const identifier = addressPointer.identifier;
-  pubkey = addressPointer.pubkey;
+  const pubkey = addressPointer.pubkey;
   const relays = addressPointer.relays;
+
+  if (!identifier || !pubkey) {
+    return <InvalidNaddr />;
+  }
 
   // get bounty
   // get bounty author
