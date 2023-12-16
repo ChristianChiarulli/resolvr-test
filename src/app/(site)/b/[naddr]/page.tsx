@@ -38,8 +38,11 @@ export default async function BountyPage({
   if (kind !== 30050) {
     return <InvalidNaddr />;
   }
+
+  let pubkey = "";
+
   const identifier = addressPointer.identifier;
-  const pubkey = addressPointer.pubkey;
+  pubkey = addressPointer.pubkey;
   const relays = addressPointer.relays;
 
   // get bounty
