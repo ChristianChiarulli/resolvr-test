@@ -39,7 +39,7 @@ export default function Bounty({ initialBounty, selectedTab }: Props) {
         {nq.tag("title", initialBounty)}
       </h3>
       <div className="flex items-center justify-between gap-x-2">
-        <Profile pubkey={initialBounty.pubkey} />
+        <Profile pubkey={initialBounty?.pubkey} />
         <ApplyButton />
       </div>
 
