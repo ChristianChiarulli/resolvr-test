@@ -34,6 +34,10 @@ export default async function BountyPage({
 
   const addressPointer = decodedNaddr.data;
 
+  if (!addressPointer) {
+    return <InvalidNaddr />;
+  }
+
   const kind = addressPointer.kind;
   if (kind !== 30050) {
     return <InvalidNaddr />;
