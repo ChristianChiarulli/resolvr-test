@@ -76,21 +76,34 @@ export default async function BountyPage({
   const getCachedEvents = unstable_cache(
     async (params: GetEventParams) => {
       console.log("CACHING SINGLE BOUNTY EVENT");
-      return await nq.get(params);
+      const bountyEvent = await nq.get(params);
+      if (!bountyEvent) {
+        throw new Error("Bounty not found");
+      }
+      return bountyEvent;
     },
     undefined,
-    { tags: [`${identifier}`], revalidate: 10 },
+    { tags: [`${identifier}-${pubkey}`], revalidate: 60 },
   );
 
-  let bountyEvent = await getCachedEvents(getEventparams);
+  let bountyEvent;
 
-  bountyEvent = JSON.parse(JSON.stringify(bountyEvent)) as Event;
+  try {
+    bountyEvent = await getCachedEvents(getEventparams);
+    bountyEvent = JSON.parse(JSON.stringify(bountyEvent)) as Event;
+  } catch (e) {
+    console.log("e: ", e);
+  }
 
   return (
     <div className="mt-4 flex flex-col items-center justify-center">
       <div className="flex min-h-screen w-full max-w-4xl flex-col">
         <BackButton />
-        <Bounty initialBounty={bountyEvent} selectedTab={selectedTab} />
+        <Bounty
+          initialBounty={bountyEvent}
+          selectedTab={selectedTab}
+          filter={filter}
+        />
       </div>
     </div>
   );

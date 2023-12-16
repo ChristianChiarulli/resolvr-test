@@ -18,6 +18,9 @@ export interface EventState {
   setAssignedBountyEvents: (events: Event[]) => void;
   removeAssignedBountyEvent: (id: string) => void;
 
+  currentBounty: Event | undefined;
+  setCurrentBounty: (event: Event | undefined) => void;
+
   profileMap: Record<string, Event | null>;
   addProfile: (pubkey: string, userEvent: Event) => void;
 
@@ -61,6 +64,9 @@ const useEventStore = create<EventState>()(
           (e) => e.id !== id,
         ),
       })),
+
+    currentBounty: undefined,
+    setCurrentBounty: (event) => set({ currentBounty: event }),
 
     profileMap: {},
     addProfile: (pubkey, userEvent) =>

@@ -22,6 +22,15 @@ export interface BatchedProfileEventsParams {
   pubkey: string;
 }
 
+export interface UseGetEventParams {
+  pool?: SimplePool;
+  relays: string[];
+  filter: Filter;
+  initialEvent: Event | undefined | null;
+  onEventResolved?: (events: Event) => void;
+  onEventNotFound?: () => void;
+}
+
 export interface UseListEventsParams {
   pool?: SimplePool;
   relays: string[];
