@@ -3,15 +3,15 @@ import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 
 export interface EventState {
-  newBountyEvents: Event[];
-  addNewBountyEvent: (event: Event) => void;
-  setNewBountyEvents: (events: Event[]) => void;
-  removeNewBountyEvent: (id: string) => void;
-
   openBountyEvents: Event[];
   addOpenBountyEvent: (event: Event) => void;
   setOpenBountyEvents: (events: Event[]) => void;
   removeOpenBountyEvent: (id: string) => void;
+
+  postedBountyEvents: Event[];
+  addPostedBountyEvent: (event: Event) => void;
+  setPostedBountyEvents: (events: Event[]) => void;
+  removePostedBountyEvent: (id: string) => void;
 
   assignedBountyEvents: Event[];
   addAssignedBountyEvent: (event: Event) => void;
@@ -27,17 +27,6 @@ export interface EventState {
 
 const useEventStore = create<EventState>()(
   devtools((set) => ({
-    newBountyEvents: [],
-    addNewBountyEvent: (event) =>
-      set((prev) => ({
-        newBountyEvents: [...prev.newBountyEvents, event],
-      })),
-    setNewBountyEvents: (events) => set({ newBountyEvents: events }),
-    removeNewBountyEvent: (id) =>
-      set((prev) => ({
-        newBountyEvents: prev.newBountyEvents.filter((e) => e.id !== id),
-      })),
-
     openBountyEvents: [],
     addOpenBountyEvent: (event) =>
       set((prev) => ({
@@ -47,6 +36,17 @@ const useEventStore = create<EventState>()(
     removeOpenBountyEvent: (id) =>
       set((prev) => ({
         openBountyEvents: prev.openBountyEvents.filter((e) => e.id !== id),
+      })),
+
+    postedBountyEvents: [],
+    addPostedBountyEvent: (event) =>
+      set((prev) => ({
+        postedBountyEvents: [...prev.postedBountyEvents, event],
+      })),
+    setPostedBountyEvents: (events) => set({ postedBountyEvents: events }),
+    removePostedBountyEvent: (id) =>
+      set((prev) => ({
+        postedBountyEvents: prev.postedBountyEvents.filter((e) => e.id !== id),
       })),
 
     assignedBountyEvents: [],

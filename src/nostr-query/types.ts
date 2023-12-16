@@ -1,5 +1,11 @@
 import { type Event, type Filter, type SimplePool } from "nostr-tools";
 
+export interface GetEventParams {
+  pool?: SimplePool;
+  relays: string[];
+  filter: Filter;
+}
+
 export interface ListEventsParams {
   pool?: SimplePool;
   relays: string[];
@@ -25,6 +31,7 @@ export interface UseListEventsParams {
   onEOSE?: () => void;
   onEventPredicate?: (event: Event) => boolean;
   onEventsResolved?: (events: Event[]) => void;
+  onEventsNotFound?: () => void;
 }
 
 export interface UseProfileEventParams {

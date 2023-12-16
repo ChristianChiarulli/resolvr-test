@@ -1,6 +1,8 @@
-import OpenBounties from "~/components/bounties/OpenBounties";
-import PostedBounties from "~/components/bounties/PostedBounties";
-import { cn } from "~/lib/utils";
+import AssignedBounties from "~/components/bounty-feed/AssignedBounties";
+import OpenBounties from "~/components/bounty-feed/OpenBounties";
+import PostedBounties from "~/components/bounty-feed/PostedBounties";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import { capitalizeFirstLetter, cn } from "~/lib/utils";
 import nq from "~/nostr-query";
 import { type ListEventsParams } from "~/nostr-query/types";
 import { type UserWithKeys } from "~/types";
@@ -11,7 +13,6 @@ import Link from "next/link";
 import { type Event, type Filter } from "nostr-tools";
 
 import { authOptions } from "../api/auth/[...nextauth]/auth";
-import AssignedBounties from "~/components/bounties/AssignedBounties";
 
 let tabs = [{ name: "open", icon: NewspaperIcon }];
 
@@ -142,7 +143,7 @@ export default async function HomePage({
                   )}
                 />
 
-                <span>{tab.name}</span>
+                <span>{capitalizeFirstLetter(tab.name)}</span>
               </Link>
             ))}
           </nav>
@@ -170,6 +171,7 @@ export default async function HomePage({
           initialProfiles={profiles}
         />
       )}
+
     </div>
   );
 }

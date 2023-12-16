@@ -1,3 +1,4 @@
+import Footer from "~/components/footer/Footer";
 import Header from "~/components/header/Header";
 
 export default function RootLayout({
@@ -15,7 +16,7 @@ export default function RootLayout({
                 <Header />
                 {children}
                 {/* <RelayMenu /> */}
-                {/* <Footer /> */}
+                <Footer />
               </div>
             </div>
           </div>

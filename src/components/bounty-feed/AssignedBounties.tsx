@@ -8,7 +8,7 @@ import useEventStore from "~/store/event-store";
 import { useRelayStore } from "~/store/relay-store";
 import { type Event, type Filter } from "nostr-tools";
 
-import Bounty from "./Bounty";
+import BountyCard from "./BountyCard";
 import BountyLoadButton from "./BountyLoadButton";
 
 type Props = {
@@ -59,7 +59,7 @@ export default function AssignedBounties({
           ? assignedBountyEvents
           : initialBounties
         ).map((bountyEvent) => (
-          <Bounty key={bountyEvent.id} bountyEvent={bountyEvent} />
+          <BountyCard key={bountyEvent.id} bountyEvent={bountyEvent} />
         ))}
       </ul>
       <BountyLoadButton

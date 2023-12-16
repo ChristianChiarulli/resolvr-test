@@ -2,18 +2,16 @@
 
 import { useEffect } from "react";
 
-import nq from "~/nostr-query";
-import { revalidateCachedTag } from "~/nostr-query/server";
 import { type UseListEventsParams } from "~/nostr-query/types";
 import useListEvents from "~/nostr-query/useListEvents";
 import useEventStore from "~/store/event-store";
 import { useRelayStore } from "~/store/relay-store";
-import { revalidateTag } from "next/cache";
 import { type Event, type Filter } from "nostr-tools";
 
-import { Button } from "../ui/button";
-import Bounty from "./Bounty";
+import { ToastAction } from "../ui/toast";
+import { useToast } from "../ui/use-toast";
 import BountyLoadButton from "./BountyLoadButton";
+import BountyCard from "./BountyCard";
 
 type Props = {
   initialBounties: Event[];
@@ -26,7 +24,7 @@ export default function OpenBounties({
   filter,
   initialProfiles,
 }: Props) {
-  const { newBountyEvents, setNewBountyEvents, addProfile } = useEventStore();
+  const { postedBountyEvents, setPostedBountyEvents, addProfile } = useEventStore();
   const { subRelays } = useRelayStore();
 
   useEffect(() => {
@@ -36,14 +34,28 @@ export default function OpenBounties({
       });
     }
   }, [initialProfiles]);
+  const { toast } = useToast();
+
+  const onEventsNotFound = () => {
+    toast({
+      title: "No bounties found",
+      description: "There are no more bounties to display at this time.",
+      action: (
+        <ToastAction onClick={addMorePosts} altText="Try again">
+          Try again
+        </ToastAction>
+      ),
+    });
+  };
 
   const params: UseListEventsParams = {
     filter: filter,
     relays: subRelays,
-    initialEvents: newBountyEvents || initialBounties,
+    initialEvents: postedBountyEvents || initialBounties,
     onEventsResolved: (events) => {
-      setNewBountyEvents(events);
+      setPostedBountyEvents(events);
     },
+    onEventsNotFound: onEventsNotFound,
   };
 
   const { loading, loadOlderEvents } = useListEvents(params);
@@ -52,27 +64,20 @@ export default function OpenBounties({
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
   ) {
     e.preventDefault();
-    await loadOlderEvents(newBountyEvents, 1);
+    await loadOlderEvents(postedBountyEvents, 1);
   }
-
-  // const invalidate = () => {
-  //   revalidateCachedTag("bounties");
-  // };
 
   return (
     <>
-      {/* <Button onClick={invalidate} variant="default"> */}
-      {/*   invalidate */}
-      {/* </Button> */}
       <ul className="flex w-full flex-col">
-        {(newBountyEvents.length > 0 ? newBountyEvents : initialBounties).map(
+        {(postedBountyEvents.length > 0 ? postedBountyEvents : initialBounties).map(
           (bountyEvent) => (
-            <Bounty key={bountyEvent.id} bountyEvent={bountyEvent} />
+            <BountyCard key={bountyEvent.id} bountyEvent={bountyEvent} />
           ),
         )}
       </ul>
       <BountyLoadButton
-        postsLength={newBountyEvents.length}
+        postsLength={postedBountyEvents.length}
         loadFn={addMorePosts}
         loading={loading}
       />

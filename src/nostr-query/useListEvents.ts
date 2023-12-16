@@ -15,6 +15,7 @@ const useListEvents = ({
   onEOSE = () => {},
   onEventPredicate = () => true,
   onEventsResolved = (events) => {},
+  onEventsNotFound = () => {},
 }: UseListEventsParams) => {
   const [loading, setLoading] = useState(true);
   const [events, setEvents] = useState<Event[]>([]);
@@ -59,6 +60,11 @@ const useListEvents = ({
       listParams = { ...listParams, filter: { ...filterWithLimit, until } };
 
       const newEvents = (await nq.list(listParams)) as Event[];
+      if (newEvents.length === 0) {
+        setLoading(false);
+        onEventsNotFound();
+      }
+
       const allEvents = [...existingEvents, ...newEvents];
       setEvents(allEvents);
       onEventsResolved(allEvents);

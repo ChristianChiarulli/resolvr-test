@@ -6,6 +6,7 @@ import type { Metadata } from "next";
 import "~/styles/globals.css";
 
 import AuthProvider from "~/context/AuthProvider";
+import { Toaster } from "~/components/ui/toaster";
 
 export const metadata: Metadata = {
   title: "Resolvr",
@@ -30,7 +31,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            {children}
+            <Toaster />
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

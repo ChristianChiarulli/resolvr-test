@@ -1,7 +1,8 @@
-import { revalidateTag } from "next/cache";
-import { SimplePool, type Event, type Filter } from "nostr-tools";
+import { nip19, SimplePool, type Event, type Filter } from "nostr-tools";
+import { type AddressPointer } from "nostr-tools/nip19";
 
 import {
+  type GetEventParams,
   type BatchedProfileEventsParams,
   type ListEventsParams,
   type Profile,
@@ -20,16 +21,19 @@ function newestEvents(events: Event[], n: number | undefined) {
   return events.slice(0, n);
 }
 
+const get = ({ pool = defaultPool, relays, filter }: GetEventParams) => {
+  return pool.get(relays, filter);
+};
+
 const list = ({
   pool = defaultPool,
   relays,
   filter,
   timeout = 3000,
-  onEvent = (event: Event) => {},
+  onEvent = (_: Event) => {},
   onEOSE = () => {},
   onEventPredicate = () => true,
 }: ListEventsParams) => {
-  console.log("BEING CALLED");
   return new Promise((resolve) => {
     const sub = pool.sub(relays, [filter]);
     const events: Event[] = [];
@@ -140,7 +144,30 @@ const shortNpub = (pubkey: string | undefined, length = 4 as number) => {
   );
 };
 
+const createNaddr = (
+  event: Event | undefined,
+  relays: string[] | undefined = undefined,
+) => {
+  const identifier = nq.tag("d", event);
+  if (!identifier) {
+    return null;
+  }
+  if (!event) {
+    return null;
+  }
+
+  const addressPointer: AddressPointer = {
+    identifier: identifier,
+    pubkey: event.pubkey,
+    kind: event.kind,
+    relays,
+  };
+
+  return nip19.naddrEncode(addressPointer);
+};
+
 const nq = {
+  get,
   list,
   listBatchedProfiles,
   fetchProfile,
@@ -148,6 +175,7 @@ const nq = {
   publish,
   tag,
   shortNpub,
+  createNaddr,
 };
 
 export default nq;
