@@ -82,9 +82,9 @@ export default function Bounty({ initialBounty, selectedTab }: Props) {
             <h4 className="scroll-m-20 py-2 text-xl font-semibold tracking-tight">
               Bounty Description
             </h4>
-            <span className="text-sm text-muted-foreground">{fromNow(initialBounty.created_at) ?? "unknown"}</span>
+            <span className="text-sm text-muted-foreground">{fromNow(initialBounty?.created_at) ?? "unknown"}</span>
           </div>
-          <BountyDetails details={initialBounty.content} />
+          <BountyDetails details={initialBounty?.content} />
         </>
       )}
     </div>
