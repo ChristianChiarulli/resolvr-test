@@ -78,7 +78,7 @@ export default async function HomePage({
   const getCachedEvents = unstable_cache(
     async (params: ListEventsParams) => {
       console.log("CACHING BOUNTY EVENTS");
-      const initialBountyEvents: Event[] = (await nq.list(params)) as Event[];
+      const initialBountyEvents: Event[] = (await nq.list(params))!;
       return initialBountyEvents;
     },
     undefined,

@@ -77,7 +77,7 @@ export default function ApplyButton({ bounty }: Props) {
     const tags = [
       ["a", aTag, recommendedRelay],
       ["p", bounty.pubkey],
-      ["description", JSON.stringify(bounty)],
+      ["r", JSON.stringify(bounty)],
     ];
 
     let event: Event = {
