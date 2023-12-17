@@ -12,6 +12,7 @@ import { type Event, type Filter } from "nostr-tools";
 import { ToastAction } from "../ui/toast";
 import { useToast } from "../ui/use-toast";
 import ApplicationCard from "./ApplicantCard";
+import ApplicationLoadButton from "./ApplicationLoadButton";
 
 type Props = {
   bounty: Event;
@@ -30,8 +31,8 @@ export default function ApplicationFeed({ bounty }: Props) {
 
   const onEventsNotFound = () => {
     toast({
-      title: "No bounties found",
-      description: "There are no more bounties to display at this time.",
+      title: "No applications found",
+      description: "There are no more applications to display at this time.",
       action: (
         <ToastAction onClick={addMorePosts} altText="Try again">
           Try again
@@ -71,6 +72,7 @@ export default function ApplicationFeed({ bounty }: Props) {
         });
       }
     },
+    onEventsNotFound: onEventsNotFound,
   };
 
   const { loading, loadOlderEvents } = useListEvents(params);
@@ -92,11 +94,13 @@ export default function ApplicationFeed({ bounty }: Props) {
           />
         ))}
       </ul>
-      {/* <BountyLoadButton */}
-      {/*   postsLength={openBountyEvents.length} */}
-      {/*   loadFn={addMorePosts} */}
-      {/*   loading={loading} */}
-      {/* /> */}
+      {appEventMap[bounty.id] && (
+        <ApplicationLoadButton
+          postsLength={appEventMap[bounty.id]?.length ?? 0}
+          loadFn={addMorePosts}
+          loading={loading}
+        />
+      )}
     </>
   );
 }
