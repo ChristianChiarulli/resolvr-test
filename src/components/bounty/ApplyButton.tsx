@@ -35,7 +35,7 @@ export default function ApplyButton({ bounty }: Props) {
   const [message, setMessage] = useState("");
   const [open, setOpen] = useState(false);
 
-  const { addAppEvent, profileToAppEventMap } = useEventStore();
+  const { addAppEvent, profileBountyMap } = useEventStore();
 
   const params: UsePublishEventParams = {
     relays: pubRelays,
@@ -101,9 +101,11 @@ export default function ApplyButton({ bounty }: Props) {
 
   if (!pubkey) return null;
 
+  // TODO: profile to app event map is stupid
+
   return (
     <>
-      {profileToAppEventMap[pubkey] ? (
+      {profileBountyMap[pubkey]?.[bounty.id] ? (
         <span className="inline-flex h-9 items-center justify-center whitespace-nowrap rounded-md px-3 text-sm font-medium text-green-500 dark:text-green-400">
           Applied
         </span>

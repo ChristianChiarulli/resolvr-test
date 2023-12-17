@@ -29,8 +29,8 @@ export interface EventState {
   setAppEvents: (id: string, appEvents: Event[]) => void;
   removeAppEvent: (id: string) => void;
 
-  profileToAppEventMap: Record<string, Event | undefined>;
-  addProfileToAppEventMap: (pubkey: string, appEvent: Event) => void;
+  profileBountyMap: Record<string, Record<string, Event | undefined>>;
+  addProfileBountyMap: (pubkey: string, bountyId: string, event: Event) => void;
 
   zapReciepts: Record<string, Event[]>;
   addZapReciept: (eventId: string, event: Event) => void;
@@ -115,12 +115,15 @@ const useEventStore = create<EventState>()(
         return { appEventMap: updatedMap };
       }),
 
-    profileToAppEventMap: {},
-    addProfileToAppEventMap: (pubkey, appEvent) =>
+    profileBountyMap: {},
+    addProfileBountyMap: (pubkey, bountyId, event) =>
       set((prev) => ({
-        profileToAppEventMap: {
-          ...prev.profileToAppEventMap,
-          [pubkey]: appEvent,
+        profileBountyMap: {
+          ...prev.profileBountyMap,
+          [pubkey]: {
+            ...prev.profileBountyMap[pubkey],
+            [bountyId]: event,
+          },
         },
       })),
 
