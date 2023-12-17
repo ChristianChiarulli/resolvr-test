@@ -20,12 +20,8 @@ type Props = {
 
 export default function ApplicationFeed({ bounty }: Props) {
   const { subRelays } = useRelayStore();
-  const {
-    appEventMap,
-    setAppEvents,
-    profileToAppEventMap,
-    addProfileToAppEventMap,
-  } = useEventStore();
+  const { appEventMap, setAppEvents, profileBountyMap, addProfileBountyMap } =
+    useEventStore();
 
   const { toast } = useToast();
 
@@ -66,9 +62,7 @@ export default function ApplicationFeed({ bounty }: Props) {
       setAppEvents(bounty.id, events);
       if (events.length > 0) {
         events.forEach((event) => {
-          if (!profileToAppEventMap[event.pubkey]) {
-            addProfileToAppEventMap(event.pubkey, event);
-          }
+          addProfileBountyMap(event.pubkey, bounty.id, event);
         });
       }
     },

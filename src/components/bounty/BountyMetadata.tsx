@@ -5,6 +5,8 @@ import { type Event } from "nostr-tools";
 
 import { Badge } from "../ui/badge";
 import ApplyButton from "./ApplyButton";
+import BountyMenu from "./BountyMenu";
+import CompleteButton from "./CompleteButton";
 import Profile from "./Profile";
 
 type Props = {
@@ -36,7 +38,12 @@ export default function BountyMetadata({ bounty }: Props) {
       <div className="flex items-center justify-between gap-x-2">
         {bounty?.pubkey && <Profile pubkey={bounty?.pubkey} />}
         {bounty && !isLoggedInUserBounty && <ApplyButton bounty={bounty} />}
-        {bounty && isLoggedInUserBounty && <ApplyButton bounty={bounty} />}
+        {bounty && isLoggedInUserBounty && (
+          <div className="flex gap-x-1">
+            <BountyMenu bounty={bounty} />
+            {/* <CompleteButton bounty={bounty} /> */}
+          </div>
+        )}
       </div>
     </>
   );

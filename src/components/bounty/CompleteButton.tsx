@@ -29,7 +29,7 @@ type Props = {
   bounty: Event;
 };
 
-export default function ApplyButton({ bounty }: Props) {
+export default function CompleteButton({ bounty }: Props) {
   const { pubRelays } = useRelayStore();
   const { pubkey, seckey } = useAuth();
   const [message, setMessage] = useState("");
@@ -106,56 +106,14 @@ export default function ApplyButton({ bounty }: Props) {
   // TODO: profile to app event map is stupid
 
   return (
-    <>
-      {profileBountyMap[pubkey]?.[bounty.id] && (
-        <span className="inline-flex h-9 items-center justify-center whitespace-nowrap rounded-md px-3 text-sm font-medium text-green-500 dark:text-green-400">
-          Applied
-        </span>
-      )} 
-      {!profileBountyMap[pubkey]?.[bounty.id] && (
-        <Button
-          size="sm"
-          disabled={status === "pending"}
-          onClick={() => setOpen(true)}
-          className="flex text-sm"
-        >
-          <UserPlus2 className="mr-1 h-4 w-4" />
-          Apply
-        </Button>
-      )}
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Bounty Application</DialogTitle>
-            <DialogDescription>
-              You're application will be sent to the bounty creator for review.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex flex-col gap-y-2">
-            <Label
-              htmlFor="message"
-              className="flex items-center py-4 text-left"
-            >
-              Reward:
-              <span className="flex items-center text-base font-semibold text-orange-500 dark:text-orange-400">
-                <SatoshiV2Icon className="h-5 w-5" />
-                {Number(nq.tag("reward", bounty)).toLocaleString()}
-              </span>
-            </Label>
-            <Label htmlFor="message" className="text-left">
-              Message
-            </Label>
-            <Textarea
-              id="message"
-              className="col-span-3"
-              onChange={(e) => setMessage(e.target.value)}
-            />
-          </div>
-          <DialogFooter>
-            <Button onClick={handleApply}>Apply</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </>
+    <Button
+      size="sm"
+      variant="success"
+      disabled={status === "pending"}
+      onClick={() => setOpen(true)}
+      className="flex text-sm"
+    >
+      Complete
+    </Button>
   );
 }

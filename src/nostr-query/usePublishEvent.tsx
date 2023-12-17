@@ -35,6 +35,8 @@ const usePublishEvent = ({
 
       const publishedEvent = await nq.publish(params);
 
+      setStatus("success");
+
       return publishedEvent;
     },
     [pool, relays],
