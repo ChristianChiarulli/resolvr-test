@@ -6,7 +6,7 @@ export type UserWithKeys = User & {
 };
 
 
-export type TokenWithPublicKey = {
+export type TokenWithKeys = {
+  secretKey: string;
   publicKey: string;
 };
-

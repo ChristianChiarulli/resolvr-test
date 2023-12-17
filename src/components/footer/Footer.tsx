@@ -9,7 +9,7 @@ const navigation = {
   ],
   social: [
     {
-      name: "Facebook",
+      name: "Nostr",
       href: "#",
       icon: (_: React.SVGProps<SVGSVGElement>) => (
         <svg

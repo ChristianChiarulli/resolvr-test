@@ -167,7 +167,7 @@ export default function CreateBounty() {
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="w-full max-w-2xl space-y-12"
+          className="w-full max-w-3xl space-y-12"
         >
           <h1 className="self-start pt-4 text-2xl font-bold">Create Bounty</h1>
           <FormField

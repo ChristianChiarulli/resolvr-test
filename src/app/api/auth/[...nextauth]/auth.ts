@@ -1,4 +1,4 @@
-import { type TokenWithPublicKey, type UserWithKeys } from "~/types";
+import { type TokenWithKeys, type UserWithKeys } from "~/types";
 import { type AuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
@@ -64,6 +64,7 @@ export const authOptions: AuthOptions = {
       // If the user object exists, it means this is the initial token creation.
       if (user) {
         token.publicKey = (user as UserWithKeys).publicKey;
+        token.secretKey = (user as UserWithKeys).secretKey;
       }
       return token;
     },
@@ -71,7 +72,8 @@ export const authOptions: AuthOptions = {
     async session({ session, token }) {
       // Extract the publicKey from the JWT token and add it to the session object
       const user = session.user as UserWithKeys;
-      user.publicKey = (token as TokenWithPublicKey).publicKey;
+      user.publicKey = (token as TokenWithKeys).publicKey;
+      user.secretKey = (token as TokenWithKeys).secretKey;
       return session;
     },
   },

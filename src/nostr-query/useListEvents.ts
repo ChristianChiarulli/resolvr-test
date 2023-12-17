@@ -11,18 +11,24 @@ const useListEvents = ({
   relays,
   filter,
   initialEvents = [],
-  onEvent = (event) => {},
+  onEvent = (_) => {},
   onEOSE = () => {},
   onEventPredicate = () => true,
-  onEventsResolved = (events) => {},
+  onEventsResolved = (_) => {},
   onEventsNotFound = () => {},
 }: UseListEventsParams) => {
   const [loading, setLoading] = useState(true);
   const [events, setEvents] = useState<Event[]>([]);
 
   const loadOlderEvents = useCallback(
-    async (existingEvents: Event[] | undefined, limit: number) => {
+    async (existingEvents: Event[] | undefined | null, limit: number) => {
       setLoading(true);
+
+      if (!filter) {
+        setLoading(false);
+        return;
+      }
+
       let filterWithLimit = filter;
 
       if (limit > 0) {
@@ -38,8 +44,8 @@ const useListEvents = ({
         onEventPredicate,
       };
 
-      if (existingEvents === undefined || existingEvents.length === 0) {
-        const newEvents = (await nq.list(listParams)) as Event[];
+      if (!existingEvents || existingEvents.length === 0) {
+        const newEvents = (await nq.list(listParams))!;
         setEvents(newEvents);
         onEventsResolved(newEvents);
         setLoading(false);
@@ -49,7 +55,7 @@ const useListEvents = ({
       const lastEvent = existingEvents[existingEvents.length - 1];
 
       if (!lastEvent) {
-        const newEvents = (await nq.list(listParams)) as Event[];
+        const newEvents = (await nq.list(listParams))!;
         setEvents(newEvents);
         onEventsResolved(newEvents);
         setLoading(false);
@@ -59,7 +65,7 @@ const useListEvents = ({
       const until = lastEvent.created_at - 10;
       listParams = { ...listParams, filter: { ...filterWithLimit, until } };
 
-      const newEvents = (await nq.list(listParams)) as Event[];
+      const newEvents = (await nq.list(listParams))!;
       if (newEvents.length === 0) {
         setLoading(false);
         onEventsNotFound();
@@ -75,6 +81,11 @@ const useListEvents = ({
   );
 
   useEffect(() => {
+    if (!filter) {
+      setLoading(false);
+      return;
+    }
+
     if (initialEvents.length > 0) {
       onEventsResolved(initialEvents);
       setEvents(initialEvents);
@@ -90,7 +101,7 @@ const useListEvents = ({
         onEvent,
         onEOSE,
         onEventPredicate,
-      })) as Event[];
+      }))!;
 
       if (events && events.length > 0) {
         onEventsResolved(events);

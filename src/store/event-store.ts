@@ -24,6 +24,14 @@ export interface EventState {
   profileMap: Record<string, Event | null>;
   addProfile: (pubkey: string, userEvent: Event) => void;
 
+  appEventMap: Record<string, Event[] | undefined>;
+  addAppEvent: (id: string, appEvent: Event) => void;
+  setAppEvents: (id: string, appEvents: Event[]) => void;
+  removeAppEvent: (id: string) => void;
+
+  profileToAppEventMap: Record<string, Event | undefined>;
+  addProfileToAppEventMap: (pubkey: string, appEvent: Event) => void;
+
   zapReciepts: Record<string, Event[]>;
   addZapReciept: (eventId: string, event: Event) => void;
 }
@@ -82,6 +90,39 @@ const useEventStore = create<EventState>()(
         }
         return {};
       }),
+
+    appEventMap: {},
+
+    addAppEvent: (id, appEvent) =>
+      set((prev) => ({
+        appEventMap: {
+          ...prev.appEventMap,
+          [id]: [...(prev.appEventMap[id] ?? []), appEvent],
+        },
+      })),
+    setAppEvents: (id, appEvents) =>
+      set((prev) => ({
+        appEventMap: {
+          ...prev.appEventMap,
+          [id]: appEvents,
+        },
+      })),
+
+    removeAppEvent: (id) =>
+      set((prev) => {
+        const updatedMap = { ...prev.appEventMap };
+        delete updatedMap[id];
+        return { appEventMap: updatedMap };
+      }),
+
+    profileToAppEventMap: {},
+    addProfileToAppEventMap: (pubkey, appEvent) =>
+      set((prev) => ({
+        profileToAppEventMap: {
+          ...prev.profileToAppEventMap,
+          [pubkey]: appEvent,
+        },
+      })),
 
     zapReciepts: {},
     addZapReciept: (eventId, event) =>

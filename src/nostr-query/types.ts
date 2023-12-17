@@ -14,6 +14,7 @@ export interface ListEventsParams {
   onEvent?: (event: Event) => void;
   onEOSE?: () => void;
   onEventPredicate?: (event: Event) => boolean;
+  onEventsResolved?: (events: Event[]) => void;
 }
 
 export interface BatchedProfileEventsParams {
@@ -51,7 +52,7 @@ export interface UseProfileEventParams {
   onProfileEvent?: (event: Event) => void;
 }
 
-export type Profile = {
+export interface Profile {
   relay?: string;
   publicKey?: string;
   about?: string;
@@ -67,16 +68,23 @@ export type Profile = {
   [key: string]: unknown;
 };
 
-export type UsePublishEventParams = {
+export interface UsePublishEventParams {
   pool?: SimplePool;
   relays: string[];
 };
 
 export type PublishEventStatus = "idle" | "pending" | "error" | "success";
 
-export type PublishEventParams = {
+export interface PublishEventParams {
   pool?: SimplePool;
   relays: string[];
   event: Event | undefined | null;
   onSeen?: (event: Event) => void;
 };
+
+export interface ATagParams {
+  kind: string;
+  pubkey: string;
+  dTagValue: string;
+};
+

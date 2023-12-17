@@ -2,8 +2,9 @@ import { nip19, SimplePool, type Event, type Filter } from "nostr-tools";
 import { type AddressPointer } from "nostr-tools/nip19";
 
 import {
-  type GetEventParams,
+  type ATagParams,
   type BatchedProfileEventsParams,
+  type GetEventParams,
   type ListEventsParams,
   type Profile,
   type PublishEventParams,
@@ -33,20 +34,25 @@ const list = ({
   onEvent = (_: Event) => {},
   onEOSE = () => {},
   onEventPredicate = () => true,
+  onEventsResolved = (_: Event[]) => {},
 }: ListEventsParams) => {
-  return new Promise((resolve) => {
+  return new Promise<Event[] | undefined | null>((resolve) => {
     const sub = pool.sub(relays, [filter]);
     const events: Event[] = [];
 
     const _timeout = setTimeout(() => {
       sub.unsub();
       resolve(newestEvents(events, filter.limit));
+      onEventsResolved(events);
     }, timeout);
 
     sub.on("eose", () => {
+      console.log("eose");
+      console.log("events", events);
       sub.unsub();
       onEOSE();
       resolve(newestEvents(events, filter.limit));
+      onEventsResolved(events);
     });
 
     sub.on("event", (event) => {
@@ -166,6 +172,10 @@ const createNaddr = (
   return nip19.naddrEncode(addressPointer);
 };
 
+const createATag = ({ kind, pubkey, dTagValue }: ATagParams) => {
+  return `${kind}:${pubkey}:${dTagValue}`;
+};
+
 const nq = {
   get,
   list,
@@ -176,6 +186,7 @@ const nq = {
   tag,
   shortNpub,
   createNaddr,
+  createATag,
 };
 
 export default nq;
