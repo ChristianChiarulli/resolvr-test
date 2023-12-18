@@ -1,20 +1,16 @@
 import AssignedBounties from "~/components/bounty-feed/AssignedBounties";
 import OpenBounties from "~/components/bounty-feed/OpenBounties";
 import PostedBounties from "~/components/bounty-feed/PostedBounties";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
-import { capitalizeFirstLetter, cn } from "~/lib/utils";
+import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import nq from "~/nostr-query";
 import { type ListEventsParams } from "~/nostr-query/types";
 import { type UserWithKeys } from "~/types";
-import { NewspaperIcon, Upload, User2 } from "lucide-react";
 import { getServerSession } from "next-auth";
 import { unstable_cache } from "next/cache";
 import Link from "next/link";
 import { type Event, type Filter } from "nostr-tools";
 
 import { authOptions } from "../api/auth/[...nextauth]/auth";
-
-let tabs = [{ name: "open", icon: NewspaperIcon }];
 
 export default async function HomePage({
   searchParams,
@@ -32,12 +28,6 @@ export default async function HomePage({
     publicKey = user.publicKey;
     if (publicKey) {
       loggedIn = true;
-      tabs = [
-        { name: "open", icon: NewspaperIcon },
-        { name: "posted", icon: Upload },
-        { name: "assigned", icon: User2 },
-        // { name: "disputed", icon: AlertCircle },
-      ];
     }
   }
 
@@ -116,39 +106,34 @@ export default async function HomePage({
 
   return (
     <div className="min-h-screen w-full flex-col items-center">
-      <div className="w-full sm:block">
-        <div className="border-b">
-          <nav
-            className="no-scrollbar -mb-px flex space-x-8 overflow-x-auto"
-            aria-label="Tabs"
-          >
-            {tabs.map((tab) => (
-              <Link
-                replace={true}
-                key={tab.name}
-                href={`?tab=${tab.name.toLowerCase()}`}
-                className={cn(
-                  selectedTab === tab.name.toLowerCase()
-                    ? "border-indigo-600 text-indigo-600 dark:border-indigo-500 dark:text-indigo-500"
-                    : "border-transparent text-muted-foreground hover:border-primary-foreground hover:text-primary-foreground",
-                  "group inline-flex items-center border-b px-1 py-4 text-sm font-medium",
-                )}
-              >
-                <tab.icon
-                  className={cn(
-                    selectedTab === tab.name.toLowerCase()
-                      ? "text-indigo-600 dark:text-indigo-500"
-                      : "text-muted-foreground group-hover:text-primary-foreground",
-                    "-ml-0.5 mr-2 h-5 w-5",
-                  )}
-                />
-
-                <span>{capitalizeFirstLetter(tab.name)}</span>
-              </Link>
-            ))}
-          </nav>
-        </div>
-      </div>
+      {loggedIn && (
+        <Tabs className="py-4" defaultValue={selectedTab}>
+          <div className="flex items-center justify-between">
+            <h1 className="select-none text-center text-3xl font-bold">
+              Bounties
+            </h1>
+            <div className="mr-1 flex items-center">
+              <TabsList>
+                <TabsTrigger value="open">
+                  <Link href={"?tab=open"} replace={true}>
+                    Open
+                  </Link>
+                </TabsTrigger>
+                <TabsTrigger value="posted">
+                  <Link href={"?tab=posted"} replace={true}>
+                    Posted
+                  </Link>
+                </TabsTrigger>
+                <TabsTrigger value="assigned">
+                  <Link href={"?tab=assigned"} replace={true}>
+                    Assigned
+                  </Link>
+                </TabsTrigger>
+              </TabsList>
+            </div>
+          </div>
+        </Tabs>
+      )}
 
       {selectedTab === "open" && (
         <OpenBounties
@@ -157,21 +142,20 @@ export default async function HomePage({
           initialProfiles={profiles}
         />
       )}
-      {selectedTab === "posted" && loggedIn && (
+      {selectedTab === "posted" && (
         <PostedBounties
           initialBounties={initialBountyEvents}
           filter={filter}
           initialProfiles={profiles}
         />
       )}
-      {selectedTab === "assigned" && loggedIn && (
+      {selectedTab === "assigned" && (
         <AssignedBounties
           initialBounties={initialBountyEvents}
           filter={filter}
           initialProfiles={profiles}
         />
       )}
-
     </div>
   );
 }
