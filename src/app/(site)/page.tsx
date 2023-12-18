@@ -139,7 +139,7 @@ export default async function HomePage({
 
           <div className="mb-2 mt-3 flex gap-x-2">
             <BountyTags />
-            <BountyFilter />
+            {/* <BountyFilter /> */}
           </div>
         </div>
       )}
