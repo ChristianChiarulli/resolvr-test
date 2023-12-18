@@ -44,7 +44,14 @@ const useListEvents = ({
         setEvents(newEvents);
         onEventsResolved(newEvents);
         setLoading(false);
-        setNoEvents(false);
+        if (
+          (!existingEvents || existingEvents.length === 0) &&
+          newEvents.length === 0
+        ) {
+          setNoEvents(true);
+        } else {
+          setNoEvents(false);
+        }
         return newEvents;
       }
 
@@ -55,7 +62,14 @@ const useListEvents = ({
         setEvents(newEvents);
         onEventsResolved(newEvents);
         setLoading(false);
-        setNoEvents(false);
+        if (
+          (!existingEvents || existingEvents.length === 0) &&
+          newEvents.length === 0
+        ) {
+          setNoEvents(true);
+        } else {
+          setNoEvents(false);
+        }
         return newEvents;
       }
 
@@ -73,7 +87,16 @@ const useListEvents = ({
       setEvents(allEvents);
       onEventsResolved(allEvents);
       setLoading(false);
-      setNoEvents(false);
+
+      if (
+        (!existingEvents || existingEvents.length === 0) &&
+        newEvents.length === 0
+      ) {
+        setNoEvents(true);
+      } else {
+        setNoEvents(false);
+      }
+
       return allEvents;
     },
     [pool, relays],
