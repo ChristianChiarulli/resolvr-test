@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 
 import nq from "~/nostr-query";
 import { type ATagParams, type UseListEventsParams } from "~/nostr-query/types";
@@ -20,8 +20,7 @@ type Props = {
 
 export default function ApplicationFeed({ bounty }: Props) {
   const { subRelays } = useRelayStore();
-  const { appEventMap, setAppEvents, profileBountyMap, addProfileBountyMap } =
-    useEventStore();
+  const { appEventMap, setAppEvents, addProfileBountyMap } = useEventStore();
 
   const { toast } = useToast();
 
@@ -84,6 +83,7 @@ export default function ApplicationFeed({ bounty }: Props) {
         {(appEventMap[bounty.id] ?? []).map((applicationEvent) => (
           <ApplicationCard
             key={bounty.id}
+            bountyEvent={bounty}
             applicationEvent={applicationEvent}
           />
         ))}

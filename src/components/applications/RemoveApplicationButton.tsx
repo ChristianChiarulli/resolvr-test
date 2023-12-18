@@ -5,7 +5,7 @@ import { type UsePublishEventParams } from "~/nostr-query/types";
 import usePublishEvent from "~/nostr-query/usePublishEvent";
 import useEventStore from "~/store/event-store";
 import { useRelayStore } from "~/store/relay-store";
-import { Check } from "lucide-react";
+import { XIcon } from "lucide-react";
 import { getEventHash, type Event } from "nostr-tools";
 
 import { Button } from "../ui/button";
@@ -15,7 +15,7 @@ type Props = {
   bountyEvent: Event;
 };
 
-export default function AcceptApplicationButton({
+export default function RemoveApplicationButton({
   applicationEvent,
   bountyEvent,
 }: Props) {
@@ -29,7 +29,7 @@ export default function AcceptApplicationButton({
     appEventMap,
     setAppEvents,
   } = useEventStore();
-  const { pubRelays, subRelays } = useRelayStore();
+  const { pubRelays } = useRelayStore();
 
   const params: UsePublishEventParams = {
     relays: pubRelays,
@@ -59,19 +59,12 @@ export default function AcceptApplicationButton({
     const tags = [
       ["d", identifier],
       ["title", title],
-      ["s", "assigned"],
+      ["s", "open"],
       ["reward", reward],
       ["c", currency],
-      ["p", applicationEvent.pubkey],
       // TODO: find out why this is adding backticks
       // ["r", JSON.stringify(applicationEvent)],
     ];
-
-    if (subRelays[0]) {
-      tags.push(["e", applicationEvent.id, subRelays[0]]);
-    } else {
-      tags.push(["e", applicationEvent.id]);
-    }
 
     if (tTags.length > 0) {
       tTags.forEach((tag) => {
@@ -112,12 +105,12 @@ export default function AcceptApplicationButton({
   return (
     <Button
       onClick={handleAcceptApplication}
-      variant="default"
+      variant="destructive"
       size="sm"
       className="flex gap-x-1"
     >
-      <Check className="mr-1 h-4 w-4" />
-      Accept Application
+      <XIcon className="mr-1 h-4 w-4" />
+      Remove Applicant
     </Button>
   );
 }

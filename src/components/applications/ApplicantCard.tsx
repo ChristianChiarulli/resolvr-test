@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/prefer-nullish-coalescing */
 /* eslint-disable @next/next/no-img-element */
 
-import { SatoshiV2Icon } from "@bitcoin-design/bitcoin-icons-react/filled";
-import { Badge } from "~/components/ui/badge";
+import useAuth from "~/hooks/useAuth";
 import { BOT_AVATAR_ENDPOINT } from "~/lib/constants";
 import { fromNow } from "~/lib/utils";
 import nq from "~/nostr-query";
@@ -10,28 +9,31 @@ import { type UseProfileEventParams } from "~/nostr-query/types";
 import useProfileEvent from "~/nostr-query/useProfileEvent";
 import useEventStore from "~/store/event-store";
 import { useRelayStore } from "~/store/relay-store";
-import { Check } from "lucide-react";
-import Link from "next/link";
 import { type Event } from "nostr-tools";
 
-import { Button } from "../ui/button";
 import AcceptApplicationButton from "./AcceptApplicationButton";
+import RemoveApplicationButton from "./RemoveApplicationButton";
 
 type Props = {
   applicationEvent: Event;
+  bountyEvent: Event;
 };
 
-export default function ApplicationCard({ applicationEvent }: Props) {
-  const pubkey = applicationEvent.pubkey;
+export default function ApplicationCard({
+  applicationEvent,
+  bountyEvent,
+}: Props) {
+  const applicantPubkey = applicationEvent.pubkey;
   const { profileMap, addProfile } = useEventStore();
   const { subRelays } = useRelayStore();
+  const { pubkey } = useAuth();
 
   const params: UseProfileEventParams = {
-    pubkey: pubkey,
+    pubkey: applicantPubkey,
     relays: subRelays,
-    shouldFetch: !profileMap[pubkey],
+    shouldFetch: !profileMap[applicantPubkey],
     onProfileEvent: (event) => {
-      addProfile(pubkey, event);
+      addProfile(applicantPubkey, event);
     },
   };
 
@@ -44,16 +46,29 @@ export default function ApplicationCard({ applicationEvent }: Props) {
           <span className="flex items-center gap-x-2 text-sm font-light text-muted-foreground">
             <img
               src={
-                nq.profileContent(profileMap[pubkey]).picture ||
-                BOT_AVATAR_ENDPOINT + pubkey
+                nq.profileContent(profileMap[applicantPubkey]).picture ||
+                BOT_AVATAR_ENDPOINT + applicantPubkey
               }
               alt=""
               className="aspect-square w-8 rounded-full border border-border dark:border-border"
             />
 
-            {nq.profileContent(profileMap[pubkey]).name || nq.shortNpub(pubkey)}
+            {nq.profileContent(profileMap[applicantPubkey]).name ||
+              nq.shortNpub(applicantPubkey)}
           </span>
-          <AcceptApplicationButton applicationEvent={applicationEvent} />
+          {pubkey === bountyEvent.pubkey && !nq.tag("p", bountyEvent) && (
+            <AcceptApplicationButton
+              applicationEvent={applicationEvent}
+              bountyEvent={bountyEvent}
+            />
+          )}
+          {pubkey === bountyEvent.pubkey &&
+            nq.tag("p", bountyEvent) === applicationEvent.pubkey && (
+              <RemoveApplicationButton
+                applicationEvent={applicationEvent}
+                bountyEvent={bountyEvent}
+              />
+            )}
         </span>
         <span className="flex gap-x-1 text-sm text-muted-foreground">
           <span>Applied</span>

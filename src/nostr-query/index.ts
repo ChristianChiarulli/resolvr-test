@@ -106,6 +106,7 @@ const publish = async ({
   if (!event) {
     return null;
   }
+  console.log("PUBLISHING EVENT", event);
 
   const pubs = pool.publish(relays, event);
 
@@ -139,6 +140,22 @@ function tag(key: string, event: Event | undefined) {
   const item = array.find((element) => element[0] === key);
   return item ? item[1] : undefined;
 }
+
+function tags(key: string, event: Event): string[] {
+  console.log("event.tags", event.tags);
+  return event.tags
+    .filter(
+      (innerArray) => innerArray[0] === key && innerArray[1] !== undefined,
+    )
+    .map((innerArray) => innerArray[1]!);
+}
+
+function constructTagsByKey(key: string, values: string[]): Array<[string, string]> {
+    return values.map(value => [key, value]);
+}
+
+// Example usage:
+// Assuming event.tags is structured similarly to your previous examples
 
 const shortNpub = (pubkey: string | undefined, length = 4 as number) => {
   if (!pubkey) {
@@ -184,6 +201,8 @@ const nq = {
   profileContent,
   publish,
   tag,
+  tags,
+  constructTagsByKey,
   shortNpub,
   createNaddr,
   createATag,
