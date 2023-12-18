@@ -1,4 +1,6 @@
 import AssignedBounties from "~/components/bounty-feed/AssignedBounties";
+import BountyFilter from "~/components/bounty-feed/BountyFilter";
+import BountyTags from "~/components/bounty-feed/BountyTags";
 import OpenBounties from "~/components/bounty-feed/OpenBounties";
 import PostedBounties from "~/components/bounty-feed/PostedBounties";
 import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
@@ -11,8 +13,6 @@ import Link from "next/link";
 import { type Event, type Filter } from "nostr-tools";
 
 import { authOptions } from "../api/auth/[...nextauth]/auth";
-import BountyTags from "~/components/bounty-feed/BountyTags";
-import BountyFilter from "~/components/bounty-feed/BountyFilter";
 
 export default async function HomePage({
   searchParams,
@@ -117,17 +117,17 @@ export default async function HomePage({
               </h1>
               <div className="mr-1 flex items-center">
                 <TabsList className="bg-secondary/90">
-                  <TabsTrigger value="open">
+                  <TabsTrigger asChild value="open">
                     <Link href={"?tab=open"} replace={true}>
                       Open
                     </Link>
                   </TabsTrigger>
-                  <TabsTrigger value="posted">
+                  <TabsTrigger asChild value="posted">
                     <Link href={"?tab=posted"} replace={true}>
                       Posted
                     </Link>
                   </TabsTrigger>
-                  <TabsTrigger value="assigned">
+                  <TabsTrigger asChild value="assigned">
                     <Link href={"?tab=assigned"} replace={true}>
                       Assigned
                     </Link>
