@@ -1,8 +1,14 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { useRouter, usePathname, useSearchParams, useParams } from "next/navigation";
+import React, { useEffect, useState } from "react";
+
 import { TAGS } from "~/lib/constants";
+import {
+  useParams,
+  usePathname,
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
 
 import {
   Select,
@@ -17,15 +23,15 @@ export default function BountyTags() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const params = useParams();
-  const [selectedTag, setSelectedTag] = useState<string>('');
+  const [selectedTag, setSelectedTag] = useState<string>("");
 
   useEffect(() => {
     // const tagFromURL = params.get('tag');
     const tagFromURL = params.tag;
-    if (tagFromURL && typeof tagFromURL === 'string') {
+    if (tagFromURL && typeof tagFromURL === "string") {
       setSelectedTag(tagFromURL);
     } else {
-      setSelectedTag(''); // Reset to default value if 'tag' is not in URL
+      setSelectedTag(""); // Reset to default value if 'tag' is not in URL
     }
   }, [searchParams]);
 
@@ -33,7 +39,9 @@ export default function BountyTags() {
     // const updatedParams = new URLSearchParams(searchParams.toString());
     // updatedParams.set('tag', newTag);
     // router.push(`${pathname}?${updatedParams.toString()}`);
-    router.push(`/tag/${newTag}`);
+    if (newTag === "all") {
+      router.push("/");
+    } else router.push(`/tag/${newTag}`);
     setSelectedTag(newTag);
   };
 
@@ -43,7 +51,7 @@ export default function BountyTags() {
         <SelectValue placeholder="Select tag" />
       </SelectTrigger>
       <SelectContent>
-        {TAGS.map((tag: string) => (
+        {["all", ...TAGS].map((tag: string) => (
           <SelectItem key={tag} value={tag}>
             {tag}
           </SelectItem>
@@ -52,4 +60,3 @@ export default function BountyTags() {
     </Select>
   );
 }
-
