@@ -1,16 +1,28 @@
 import AssignedBounties from "~/components/bounty-feed/AssignedBounties";
 import OpenBounties from "~/components/bounty-feed/OpenBounties";
 import PostedBounties from "~/components/bounty-feed/PostedBounties";
+import BountyTabs from "~/components/bounty/BountyTabs";
+import { Button } from "~/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import nq from "~/nostr-query";
 import { type ListEventsParams } from "~/nostr-query/types";
 import { type UserWithKeys } from "~/types";
+import { ChevronsUpDown } from "lucide-react";
 import { getServerSession } from "next-auth";
 import { unstable_cache } from "next/cache";
 import Link from "next/link";
 import { type Event, type Filter } from "nostr-tools";
 
 import { authOptions } from "../api/auth/[...nextauth]/auth";
+import BountyTags from "~/components/bounty-feed/BountyTags";
+import BountyFilter from "~/components/bounty-feed/BountyFilter";
 
 export default async function HomePage({
   searchParams,
@@ -107,32 +119,39 @@ export default async function HomePage({
   return (
     <div className="min-h-screen w-full flex-col items-center">
       {loggedIn && (
-        <Tabs className="py-4" defaultValue={selectedTab}>
-          <div className="flex items-center justify-between">
-            <h1 className="select-none text-center text-3xl font-bold">
-              Bounties
-            </h1>
-            <div className="mr-1 flex items-center">
-              <TabsList>
-                <TabsTrigger value="open">
-                  <Link href={"?tab=open"} replace={true}>
-                    Open
-                  </Link>
-                </TabsTrigger>
-                <TabsTrigger value="posted">
-                  <Link href={"?tab=posted"} replace={true}>
-                    Posted
-                  </Link>
-                </TabsTrigger>
-                <TabsTrigger value="assigned">
-                  <Link href={"?tab=assigned"} replace={true}>
-                    Assigned
-                  </Link>
-                </TabsTrigger>
-              </TabsList>
+        <div className="flex flex-col py-4">
+          <Tabs defaultValue={selectedTab}>
+            <div className="flex items-center justify-between">
+              <h1 className="select-none text-center text-3xl font-bold">
+                Bounties
+              </h1>
+              <div className="mr-1 flex items-center">
+                <TabsList>
+                  <TabsTrigger value="open">
+                    <Link href={"?tab=open"} replace={true}>
+                      Open
+                    </Link>
+                  </TabsTrigger>
+                  <TabsTrigger value="posted">
+                    <Link href={"?tab=posted"} replace={true}>
+                      Posted
+                    </Link>
+                  </TabsTrigger>
+                  <TabsTrigger value="assigned">
+                    <Link href={"?tab=assigned"} replace={true}>
+                      Assigned
+                    </Link>
+                  </TabsTrigger>
+                </TabsList>
+              </div>
             </div>
+          </Tabs>
+
+          <div className="mb-2 mt-3 flex gap-x-2">
+            <BountyTags />
+            <BountyFilter />
           </div>
-        </Tabs>
+        </div>
       )}
 
       {selectedTab === "open" && (
