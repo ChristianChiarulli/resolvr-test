@@ -29,6 +29,11 @@ export interface EventState {
   setAppEvents: (id: string, appEvents: Event[]) => void;
   removeAppEvent: (id: string) => void;
 
+  tagEventsMap: Record<string, Event[] | undefined>;
+  addTagEvent: (id: string, tagEvent: Event) => void;
+  setTagEvents: (id: string, tagEvents: Event[]) => void;
+  removeTagEvent: (id: string) => void;
+
   profileBountyMap: Record<string, Record<string, Event | undefined>>;
   addProfileBountyMap: (pubkey: string, bountyId: string, event: Event) => void;
 
@@ -113,6 +118,28 @@ const useEventStore = create<EventState>()(
         const updatedMap = { ...prev.appEventMap };
         delete updatedMap[id];
         return { appEventMap: updatedMap };
+      }),
+
+    tagEventsMap: {},
+    addTagEvent: (id, tagEvent) =>
+      set((prev) => ({
+        tagEventsMap: {
+          ...prev.tagEventsMap,
+          [id]: [...(prev.tagEventsMap[id] ?? []), tagEvent],
+        },
+      })),
+    setTagEvents: (id, tagEvents) =>
+      set((prev) => ({
+        tagEventsMap: {
+          ...prev.tagEventsMap,
+          [id]: tagEvents,
+        },
+      })),
+    removeTagEvent: (id) =>
+      set((prev) => {
+        const updatedMap = { ...prev.tagEventsMap };
+        delete updatedMap[id];
+        return { tagEventsMap: updatedMap };
       }),
 
     profileBountyMap: {},

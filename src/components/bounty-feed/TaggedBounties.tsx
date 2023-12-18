@@ -1,40 +1,24 @@
 "use client";
 
-import { useEffect } from "react";
-
 import { type UseListEventsParams } from "~/nostr-query/types";
 import useListEvents from "~/nostr-query/useListEvents";
 import useEventStore from "~/store/event-store";
 import { useRelayStore } from "~/store/relay-store";
-import { type Event, type Filter } from "nostr-tools";
+import { type Filter } from "nostr-tools";
 
-import { ToastAction } from "../ui/toast";
-import { useToast } from "../ui/use-toast";
 import BountyCard from "./BountyCard";
 import BountyLoadButton from "./BountyLoadButton";
+import { useToast } from "../ui/use-toast";
+import { ToastAction } from "../ui/toast";
 
 type Props = {
-  initialBounties: Event[];
   filter: Filter;
-  initialProfiles: Event[];
+  tag: string;
 };
 
-export default function AssignedBounties({
-  initialBounties,
-  filter,
-  initialProfiles,
-}: Props) {
-  const { assignedBountyEvents, setAssignedBountyEvents, addProfile } =
-    useEventStore();
+export default function TaggedBounties({ filter, tag }: Props) {
+  const { tagEventsMap, setTagEvents } = useEventStore();
   const { subRelays } = useRelayStore();
-
-  useEffect(() => {
-    if (initialProfiles.length > 0) {
-      initialProfiles.forEach((profile) => {
-        addProfile(profile.pubkey, profile);
-      });
-    }
-  }, [initialProfiles]);
 
   const { toast } = useToast();
 
@@ -53,34 +37,44 @@ export default function AssignedBounties({
   const params: UseListEventsParams = {
     filter: filter,
     relays: subRelays,
-    initialEvents: assignedBountyEvents || initialBounties,
+    initialEvents: tagEventsMap[tag],
     onEventsResolved: (events) => {
-      setAssignedBountyEvents(events);
+      setTagEvents(tag, events);
     },
     onEventsNotFound: onEventsNotFound,
   };
 
-  const { loading, loadOlderEvents } = useListEvents(params);
+
+  const { loading, noEvents, loadOlderEvents } = useListEvents(params);
 
   async function addMorePosts(
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
   ) {
     e.preventDefault();
-    await loadOlderEvents(assignedBountyEvents, 1);
+    await loadOlderEvents(tagEventsMap[tag], 1);
   }
 
   return (
     <>
       <ul className="flex w-full flex-col">
-        {(assignedBountyEvents.length > 0
-          ? assignedBountyEvents
-          : initialBounties
-        ).map((bountyEvent) => (
+        {(tagEventsMap?.[tag] ?? []).map((bountyEvent) => (
           <BountyCard key={bountyEvent.id} bountyEvent={bountyEvent} />
         ))}
       </ul>
+      <div>
+        {noEvents && (
+            <div className="flex flex-col items-center justify-center">
+              <div className="text-lg font-medium text-gray-500">
+                No bounties found
+              </div>
+              <div className="text-sm text-gray-500">
+                There are no more bounties to display at this time.
+              </div>
+            </div>
+          )}
+      </div>
       <BountyLoadButton
-        postsLength={assignedBountyEvents.length}
+        postsLength={tagEventsMap[tag]?.length ?? 0}
         loadFn={addMorePosts}
         loading={loading}
       />

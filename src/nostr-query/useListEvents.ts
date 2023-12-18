@@ -19,16 +19,11 @@ const useListEvents = ({
 }: UseListEventsParams) => {
   const [loading, setLoading] = useState(true);
   const [events, setEvents] = useState<Event[]>([]);
+  const [noEvents, setNoEvents] = useState(false);
 
   const loadOlderEvents = useCallback(
     async (existingEvents: Event[] | undefined | null, limit: number) => {
       setLoading(true);
-
-      if (!filter) {
-        setLoading(false);
-        return;
-      }
-
       let filterWithLimit = filter;
 
       if (limit > 0) {
@@ -49,6 +44,7 @@ const useListEvents = ({
         setEvents(newEvents);
         onEventsResolved(newEvents);
         setLoading(false);
+        setNoEvents(false);
         return newEvents;
       }
 
@@ -59,6 +55,7 @@ const useListEvents = ({
         setEvents(newEvents);
         onEventsResolved(newEvents);
         setLoading(false);
+        setNoEvents(false);
         return newEvents;
       }
 
@@ -69,27 +66,25 @@ const useListEvents = ({
       if (newEvents.length === 0) {
         setLoading(false);
         onEventsNotFound();
+        setNoEvents(true);
       }
 
       const allEvents = [...existingEvents, ...newEvents];
       setEvents(allEvents);
       onEventsResolved(allEvents);
       setLoading(false);
+      setNoEvents(false);
       return allEvents;
     },
     [pool, relays],
   );
 
   useEffect(() => {
-    if (!filter) {
-      setLoading(false);
-      return;
-    }
-
     if (initialEvents.length > 0) {
       onEventsResolved(initialEvents);
       setEvents(initialEvents);
       setLoading(false);
+      setNoEvents(false);
       return;
     }
 
@@ -107,6 +102,10 @@ const useListEvents = ({
         onEventsResolved(events);
         setEvents(events);
         setLoading(false);
+      } else {
+        setLoading(false);
+        onEventsNotFound();
+        setNoEvents(true);
       }
     };
 
@@ -117,7 +116,7 @@ const useListEvents = ({
     };
   }, [pool, relays]);
 
-  return { loading, events, loadOlderEvents };
+  return { loading, events, noEvents, loadOlderEvents };
 };
 
 export default useListEvents;

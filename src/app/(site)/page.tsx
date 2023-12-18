@@ -1,20 +1,10 @@
 import AssignedBounties from "~/components/bounty-feed/AssignedBounties";
 import OpenBounties from "~/components/bounty-feed/OpenBounties";
 import PostedBounties from "~/components/bounty-feed/PostedBounties";
-import BountyTabs from "~/components/bounty/BountyTabs";
-import { Button } from "~/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "~/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import nq from "~/nostr-query";
 import { type ListEventsParams } from "~/nostr-query/types";
 import { type UserWithKeys } from "~/types";
-import { ChevronsUpDown } from "lucide-react";
 import { getServerSession } from "next-auth";
 import { unstable_cache } from "next/cache";
 import Link from "next/link";
@@ -126,7 +116,7 @@ export default async function HomePage({
                 Bounties
               </h1>
               <div className="mr-1 flex items-center">
-                <TabsList>
+                <TabsList className="bg-secondary/90">
                   <TabsTrigger value="open">
                     <Link href={"?tab=open"} replace={true}>
                       Open
