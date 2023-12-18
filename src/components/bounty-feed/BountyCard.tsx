@@ -10,8 +10,11 @@ import { type UseProfileEventParams } from "~/nostr-query/types";
 import useProfileEvent from "~/nostr-query/useProfileEvent";
 import useEventStore from "~/store/event-store";
 import { useRelayStore } from "~/store/relay-store";
+import { User } from "lucide-react";
 import Link from "next/link";
 import { type Event } from "nostr-tools";
+
+import ApplicationCount from "../applications/ApplicationCount";
 
 type Props = {
   bountyEvent: Event;
@@ -64,7 +67,11 @@ export default function BountyCard({ bountyEvent }: Props) {
           </span>
           <span className="flex w-full justify-between pt-2 text-sm font-light text-muted-foreground">
             <span>{fromNow(bountyEvent.created_at) ?? "unknown"}</span>
-            <span>2 Applicants</span>
+            <span className="flex items-center gap-x-1">
+              <User className="h-4 w-4" />
+              <ApplicationCount bounty={bountyEvent} />
+              Applicants
+            </span>
           </span>
         </div>
       </li>
