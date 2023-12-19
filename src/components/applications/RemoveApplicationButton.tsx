@@ -114,7 +114,7 @@ export default function RemoveApplicationButton({
       className="flex gap-x-1"
     >
       <XIcon className="mr-1 h-4 w-4" />
-      Remove Applicant
+      Unsassign
     </Button>
   );
 }
