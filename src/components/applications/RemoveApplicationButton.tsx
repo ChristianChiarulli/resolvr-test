@@ -98,6 +98,9 @@ export default function RemoveApplicationButton({
       revalidateCachedTag("open-bounties");
       revalidateCachedTag(`posted-bounties-${pubkey}`);
       revalidateCachedTag(`assigned-bounties-${applicationEvent.pubkey}`);
+      const dTagValue = nq.tag("d", bountyEvent);
+      const bountyPubkey = bountyEvent.pubkey;
+      revalidateCachedTag(`${dTagValue}-${bountyPubkey}`);
     };
 
     await publishEvent(event, onSeen);
