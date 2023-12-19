@@ -28,6 +28,7 @@ export interface EventState {
   addAppEvent: (id: string, appEvent: Event) => void;
   setAppEvents: (id: string, appEvents: Event[]) => void;
   removeAppEvent: (id: string) => void;
+  clearAppEvents: (id: string) => void;
 
   tagEventsMap: Record<string, Event[] | undefined>;
   addTagEvent: (id: string, tagEvent: Event) => void;
@@ -119,6 +120,13 @@ const useEventStore = create<EventState>()(
         delete updatedMap[id];
         return { appEventMap: updatedMap };
       }),
+    clearAppEvents: (id) =>
+      set((prev) => ({
+        appEventMap: {
+          ...prev.appEventMap,
+          [id]: undefined,
+        },
+      })),
 
     tagEventsMap: {},
     addTagEvent: (id, tagEvent) =>

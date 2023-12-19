@@ -28,6 +28,7 @@ export default function AcceptApplicationButton({
     setCurrentBounty,
     appEventMap,
     setAppEvents,
+    clearAppEvents,
   } = useEventStore();
   const { pubRelays, subRelays } = useRelayStore();
 
@@ -91,7 +92,6 @@ export default function AcceptApplicationButton({
     event.id = getEventHash(event);
     event = (await nostr.signEvent(event)) as Event;
     const onSeen = (event: Event) => {
-      console.log("event seen:", event);
       if (openBountyEvents.length > 0) {
         removeOpenBountyEvent(bountyEvent.id);
       }
@@ -99,8 +99,10 @@ export default function AcceptApplicationButton({
         removePostedBountyEvent(bountyEvent.id);
       }
       setCurrentBounty(event);
-      setAppEvents(event.id, appEventMap[bountyEvent.id] ?? []);
+      const appEvents = appEventMap[bountyEvent.id] ?? [];
+      setAppEvents(event.id, appEvents);
       // TODO: REMOVE THE OLD APPLICATION EVENTS for the old bounty id
+      clearAppEvents(bountyEvent.id);
       revalidateCachedTag("open-bounties");
       revalidateCachedTag(`posted-bounties-${pubkey}`);
       revalidateCachedTag(`assigned-bounties-${applicationEvent.pubkey}`);

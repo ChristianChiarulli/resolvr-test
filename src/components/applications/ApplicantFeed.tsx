@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 
 import nq from "~/nostr-query";
 import { type ATagParams, type UseListEventsParams } from "~/nostr-query/types";
@@ -82,7 +82,7 @@ export default function ApplicationFeed({ bounty }: Props) {
       <ul className="flex w-full flex-col gap-y-4">
         {(appEventMap[bounty.id] ?? []).map((applicationEvent) => (
           <ApplicationCard
-            key={bounty.id}
+            key={applicationEvent.id}
             bountyEvent={bounty}
             applicationEvent={applicationEvent}
           />
