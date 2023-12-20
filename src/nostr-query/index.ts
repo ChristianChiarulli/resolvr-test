@@ -60,8 +60,6 @@ const list = ({
     }, timeout);
 
     sub.on("eose", () => {
-      console.log("eose");
-      console.log("events", events);
       sub.unsub();
       onEOSE();
       resolve(newestEvents(events, filter.limit));
@@ -70,7 +68,6 @@ const list = ({
 
     sub.on("event", (event) => {
       if (onEventPredicate(event)) {
-        // console.log("event", event);
         events.push(event);
         clearTimeout(_timeout);
         onEvent(event);
@@ -119,7 +116,6 @@ const publish = async ({
   if (!event) {
     return null;
   }
-  console.log("PUBLISHING EVENT", event);
 
   const pubs = pool.publish(relays, event);
 
@@ -155,7 +151,6 @@ function tag(key: string, event: Event | undefined) {
 }
 
 function tags(key: string, event: Event): string[] {
-  console.log("event.tags", event.tags);
   return event.tags
     .filter(
       (innerArray) => innerArray[0] === key && innerArray[1] !== undefined,
@@ -221,25 +216,14 @@ async function finishEvent(
     event.pubkey = await nostr.getPublicKey();
   }
 
-  console.log("event", event);
-  console.log("secretKey", secretKey);
-  console.log("event.pubkey", event.pubkey);
-  // console.log("publicKey", publicKey);
-
   event.id = getEventHash(event);
 
-  console.log("event.id", event.id);
-
-  console.log("EVENT", event);
-
   if (secretKey) {
-    console.log("secretKey", secretKey);
     event.sig = getSignature(event, secretKey);
     return event;
   }
   try {
     if (nostr) {
-      console.log("nostr", nostr);
       event = (await nostr.signEvent(event)) as Event;
       return event;
     } else {
@@ -313,13 +297,11 @@ const fetchInvoice = async (zapEndpoint: string, zapRequestEvent: Event) => {
   const comment = zapRequestEvent.content;
   const amount = tag("amount", zapRequestEvent);
   if (!amount) throw new Error("amount not found");
-  console.log("INVOICE AMOUNT", amount);
 
   let url = `${zapEndpoint}?amount=${amount}&nostr=${encodeURIComponent(
     JSON.stringify(zapRequestEvent),
   )}`;
 
-  console.log("INVOICE URL", url);
 
   if (comment) {
     url = `${url}&comment=${encodeURIComponent(comment)}`;
@@ -381,23 +363,17 @@ const zap = async ({
   });
 
   const zapRequestEvent = await finishEvent(zapRequestEventTemplate, secretKey);
-  console.log("zapRequestEvent", zapRequestEvent);
 
   if (!zapRequestEvent) throw new Error("zap request event not created");
-  console.log("zapRequestEvent", zapRequestEvent);
 
   // this needs to be a profile event
   const zapEndpoint = await getZapEndpoint(recipientProfile);
-  console.log("zapEndpoint", zapEndpoint);
 
   if (!zapEndpoint) throw new Error("zap endpoint not found");
-  console.log("zapEndpoint", zapEndpoint);
 
   const invoice = await fetchInvoice(zapEndpoint, zapRequestEvent);
-  console.log("invoice", invoice);
 
   if (!invoice) throw new Error("invoice not found");
-  console.log("invoice", invoice);
 
   try {
     return await payInvoice(invoice);
