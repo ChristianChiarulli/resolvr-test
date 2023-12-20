@@ -1,11 +1,13 @@
 import React from "react";
 
+import { capitalizeFirstLetter } from "~/lib/utils";
 import nq from "~/nostr-query";
 import { type UseGetEventParams } from "~/nostr-query/types";
 import useGetEvent from "~/nostr-query/useGetEvent";
 import useEventStore from "~/store/event-store";
 import { useRelayStore } from "~/store/relay-store";
-import { type Filter, type Event } from "nostr-tools";
+import { Dot } from "lucide-react";
+import { type Event, type Filter } from "nostr-tools";
 
 import { Badge } from "../ui/badge";
 
@@ -37,21 +39,24 @@ export default function BountyStatusBadge({ bounty }: Props) {
     <>
       {nq.tag("s", bounty) === "open" && (
         <Badge className="text-sm" variant="outline">
-          {nq.tag("s", bounty)}
+          <span className="mr-2 block h-2 w-2 rounded-full bg-yellow-500 dark:text-yellow-400" />
+          {capitalizeFirstLetter(nq.tag("s", bounty))}
         </Badge>
       )}
       {bounty &&
         nq.tag("s", bounty) === "assigned" &&
         !zapRecieptMap[bounty.id] && (
           <Badge className="text-sm" variant="outline">
-            {nq.tag("s", bounty)}
+            <span className="mr-2 block h-2 w-2 rounded-full bg-sky-500 dark:text-sky-400" />
+            {capitalizeFirstLetter(nq.tag("s", bounty))}
           </Badge>
         )}
       {bounty &&
         nq.tag("s", bounty) === "assigned" &&
         zapRecieptMap[bounty.id] && (
           <Badge className="text-sm" variant="outline">
-            Completed
+            <span className="mr-2 block h-2 w-2 rounded-full bg-green-500 dark:text-green-400" />
+            Complete
           </Badge>
         )}
     </>
