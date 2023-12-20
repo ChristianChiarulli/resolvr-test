@@ -25,7 +25,7 @@ export default function ApplicantMenu({ applicantEvent, bountyEvent }: Props) {
   const { toast } = useToast();
   const { pubkey } = useAuth();
   const { pubRelays } = useRelayStore();
-  const { setAppEvents, appEventMap } = useEventStore();
+  const { setAppEvents, appEventMap, removeProfileBountyMap } = useEventStore();
 
   const params: UsePublishEventParams = {
     relays: pubRelays,
@@ -52,6 +52,7 @@ export default function ApplicantMenu({ applicantEvent, bountyEvent }: Props) {
         bountyEvent.id,
         appEventMap[bountyEvent.id]!.filter((e) => e.id !== applicantEvent.id),
       );
+      removeProfileBountyMap(applicantEvent.pubkey, bountyEvent.id);
 
       // TODO: if I ever get these on the server make sure to invalidate
 
@@ -82,7 +83,7 @@ export default function ApplicantMenu({ applicantEvent, bountyEvent }: Props) {
               disabled={status !== "idle"}
               className="dark:text-red-400 dark:focus:bg-red-400/10 dark:focus:text-red-400 "
             >
-              Delete Bounty
+              Delete Application
             </DropdownMenuItem>
           </>
         )}
