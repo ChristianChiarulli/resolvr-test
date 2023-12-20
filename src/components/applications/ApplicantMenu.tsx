@@ -6,7 +6,6 @@ import {
 } from "~/components/ui/dropdown-menu";
 import useAuth from "~/hooks/useAuth";
 import nq from "~/nostr-query";
-import { revalidateCachedTag } from "~/nostr-query/server";
 import { type UsePublishEventParams } from "~/nostr-query/types";
 import usePublishEvent from "~/nostr-query/usePublishEvent";
 import useEventStore from "~/store/event-store";
@@ -18,19 +17,14 @@ import { type Event, type EventTemplate } from "nostr-tools";
 import { useToast } from "../ui/use-toast";
 
 type Props = {
-  bounty: Event;
+  applicantEvent: Event;
 };
 
-export default function BountyMenu({ bounty }: Props) {
+export default function ApplicantMenu({ applicantEvent }: Props) {
   const { toast } = useToast();
   const { pubkey } = useAuth();
   const { pubRelays } = useRelayStore();
-  const {
-    openBountyEvents,
-    postedBountyEvents,
-    removeOpenBountyEvent,
-    removePostedBountyEvent,
-  } = useEventStore();
+  const { removeAppEvent } = useEventStore();
   const router = useRouter();
 
   const params: UsePublishEventParams = {
@@ -42,7 +36,7 @@ export default function BountyMenu({ bounty }: Props) {
   async function handleDelete() {
     if (!pubkey) return;
 
-    const tags = [["e", bounty.id]];
+    const tags = [["e", applicantEvent.id]];
 
     const eventTemplate: EventTemplate = {
       kind: 5,
@@ -54,16 +48,8 @@ export default function BountyMenu({ bounty }: Props) {
     const event = await nq.finishEvent(eventTemplate);
 
     const onSeen = (_: Event) => {
-      if (openBountyEvents.length > 0) {
-        // setOpenBountyEvents([event, ...openBountyEvents]);
-        removeOpenBountyEvent(bounty.id);
-      }
-      if (postedBountyEvents.length > 0) {
-        removePostedBountyEvent(bounty.id);
-      }
-      revalidateCachedTag("open-bounties");
-      revalidateCachedTag(`posted-bounties-${pubkey}`);
-      // TODO: should probably revalidate assigned as well
+      removeAppEvent(applicantEvent.id);
+      // TODO: if I ever get these on the server make sure to invalidate
 
       router.push("/");
 
@@ -87,15 +73,13 @@ export default function BountyMenu({ bounty }: Props) {
         {/* <DropdownMenuItem>Broadcast</DropdownMenuItem> */}
         {/* <DropdownMenuItem>View Raw</DropdownMenuItem> */}
         {/* <DropdownMenuSeparator /> */}
-        {pubkey === bounty.pubkey && (
-          <DropdownMenuItem
-            onClick={handleDelete}
-            disabled={status !== "idle"}
-            className="dark:text-red-400 dark:focus:bg-red-400/10 dark:focus:text-red-400 "
-          >
-            Delete Bounty
-          </DropdownMenuItem>
-        )}
+        <DropdownMenuItem
+          onClick={handleDelete}
+          disabled={status !== "idle"}
+          className="dark:text-red-400 dark:focus:bg-red-400/10 dark:focus:text-red-400 "
+        >
+          Delete Bounty
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

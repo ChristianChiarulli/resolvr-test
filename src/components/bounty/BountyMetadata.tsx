@@ -32,13 +32,15 @@ export default function BountyMetadata({ bounty }: Props) {
       </h3>
       <div className="flex items-center justify-between gap-x-2">
         {bounty?.pubkey && <Profile pubkey={bounty?.pubkey} />}
-        {bounty && !isLoggedInUserBounty && <ApplyButton bounty={bounty} />}
-        {bounty && isLoggedInUserBounty && (
+        <div className="flex items-center gap-x-1.5">
+        {bounty && pubkey && (
           <div className="flex gap-x-1">
             <BountyMenu bounty={bounty} />
             {/* <CompleteButton bounty={bounty} /> */}
           </div>
         )}
+        {bounty && !isLoggedInUserBounty && <ApplyButton bounty={bounty} />}
+        </div>
       </div>
     </>
   );

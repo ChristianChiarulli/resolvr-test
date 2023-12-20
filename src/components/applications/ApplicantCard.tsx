@@ -15,6 +15,7 @@ import WebsiteBadge from "../profile/WebsiteBadge";
 import AcceptApplicationButton from "./AcceptApplicationButton";
 import RemoveApplicationButton from "./RemoveApplicationButton";
 import GithubBadge from "../profile/GithubBadge";
+import ApplicantMenu from "./ApplicantMenu";
 
 type Props = {
   applicationEvent: Event;
@@ -58,6 +59,7 @@ export default function ApplicationCard({
             {nq.profileContent(profileMap[applicantPubkey]).name ||
               nq.shortNpub(applicantPubkey)}
           </span>
+          <ApplicantMenu applicantEvent={applicationEvent} />
           {pubkey === bountyEvent.pubkey &&
             !nq.tag("p", bountyEvent) &&
             !zapRecieptMap[bountyEvent.id] && (
