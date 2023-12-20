@@ -21,7 +21,7 @@ export default function AcceptSolutionButton({
   bounty,
   recipientProfile,
 }: Props) {
-  const { addZapReciept, zapReciepts } = useEventStore();
+  const { addZapReciept, zapRecieptMap } = useEventStore();
 
   const { pubRelays } = useRelayStore();
   const { pubkey, seckey } = useAuth();
@@ -96,7 +96,7 @@ export default function AcceptSolutionButton({
   return (
     <div className="flex justify-end">
       <div>
-        {zapReciepts[bounty.id] ? (
+        {zapRecieptMap[bounty.id] ? (
           <span className="inline-flex h-9 items-center justify-center whitespace-nowrap rounded-md px-3 text-sm font-medium text-green-500 dark:text-green-400">
             Bounty Paid
           </span>

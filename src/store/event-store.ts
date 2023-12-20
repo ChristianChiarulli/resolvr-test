@@ -38,7 +38,7 @@ export interface EventState {
   profileBountyMap: Record<string, Record<string, Event | undefined>>;
   addProfileBountyMap: (pubkey: string, bountyId: string, event: Event) => void;
 
-  zapReciepts: Record<string, Event[]>;
+  zapRecieptMap: Record<string, Event>;
   addZapReciept: (eventId: string, event: Event) => void;
 }
 
@@ -162,12 +162,12 @@ const useEventStore = create<EventState>()(
         },
       })),
 
-    zapReciepts: {},
+    zapRecieptMap: {},
     addZapReciept: (eventId, event) =>
       set((prev) => ({
-        zapReciepts: {
-          ...prev.zapReciepts,
-          [eventId]: [...(prev.zapReciepts[eventId] ?? []), event],
+        zapRecieptMap: {
+          ...prev.zapRecieptMap,
+          [eventId]: event,
         },
       })),
   })),
