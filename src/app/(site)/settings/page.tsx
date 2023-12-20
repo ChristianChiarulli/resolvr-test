@@ -19,6 +19,7 @@ import { Textarea } from "~/components/ui/textarea";
 import { useToast } from "~/components/ui/use-toast";
 import useAuth from "~/hooks/useAuth";
 import nq from "~/nostr-query";
+import { validateGithub } from "~/nostr-query/server";
 import {
   type UseProfileEventParams,
   type UsePublishEventParams,
@@ -27,7 +28,8 @@ import useProfileEvent from "~/nostr-query/useProfileEvent";
 import usePublishEvent from "~/nostr-query/usePublishEvent";
 import useEventStore from "~/store/event-store";
 import { useRelayStore } from "~/store/relay-store";
-import { type Event, type EventTemplate } from "nostr-tools";
+import Link from "next/link";
+import { nip19, nip39, type Event, type EventTemplate } from "nostr-tools";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
@@ -44,6 +46,7 @@ const profileFormSchema = z.object({
   bio: z.string().max(160).min(4),
   lud16: z.string(),
   github: z.string(),
+  gist: z.string(),
 });
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
@@ -72,6 +75,7 @@ export default function SettingsPage() {
       website: "",
       bio: "",
       github: "",
+      gist: "",
       lud16: "",
     },
     mode: "onChange",
@@ -79,14 +83,22 @@ export default function SettingsPage() {
 
   const { reset } = form;
 
+  function findFirstGithubITag(
+    tags: (string | undefined)[][],
+  ): (string | undefined)[] | undefined {
+    return tags.find((tag) => tag[0] === "i" && tag[1]?.startsWith("github"));
+  }
+
   useEffect(() => {
     const profileContent = nq.profileContent(profileMap[pubkey!]);
+    const gistId = findFirstGithubITag(profileMap[pubkey!]?.tags ?? [])?.[2];
     if (profileContent) {
       reset({
         username: profileContent.name,
         website: profileContent.website,
         bio: profileContent.about,
-        // github: profileContent.github, // Assuming this is part of the profile
+        github: profileContent.github,
+        gist: gistId,
         lud16: profileContent.lud16,
       });
     }
@@ -97,8 +109,15 @@ export default function SettingsPage() {
   };
   const { publishEvent, status } = usePublishEvent(publishParams);
 
+  const removeGithub = (tags: string[][]) => {
+    return tags.filter(
+      (tag) =>
+        tag.length > 1 && !(tag[0] === "i" && tag[1]?.startsWith("github")),
+    );
+  };
+
   async function onSubmit(data: ProfileFormValues) {
-    const { username, website, bio, lud16, github } = data;
+    const { username, website, bio, lud16, github, gist } = data;
 
     if (!pubkey) return;
 
@@ -109,10 +128,29 @@ export default function SettingsPage() {
       tags = [];
     }
 
+    let shouldPost = true;
+
+    if (gist) {
+      // const validGist = await nip39.validateGithub(pubkey, github, gist);
+      const npub = nip19.npubEncode(pubkey);
+      const validGist = await validateGithub(npub, github, gist);
+      if (validGist) {
+        tags = removeGithub(tags);
+        tags.push(["i", `github:${github}`, `${gist}`]);
+      } else {
+        shouldPost = false;
+        toast({
+          title: "Invalid Gist",
+          description: "The Gist you provided is invalid.",
+        });
+      }
+    }
+
     profile.name = username;
     profile.website = website;
     profile.about = bio;
     profile.lud16 = lud16;
+    profile.github = github;
 
     const content = JSON.stringify(profile);
 
@@ -131,6 +169,8 @@ export default function SettingsPage() {
         description: "Your profile has been updated.",
       });
     };
+
+    if (!shouldPost) return;
 
     await publishEvent(event, onSeen);
   }
@@ -193,12 +233,37 @@ export default function SettingsPage() {
           name="github"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Github</FormLabel>
+              <FormLabel>Github Username</FormLabel>
               <FormControl>
                 <Input {...field} />
               </FormControl>
               <FormDescription>
                 Link your Github account to your profile.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="gist"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Gist ID</FormLabel>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+              <FormDescription>
+                Verify your Github account with:{" "}
+                <Link
+                  className="text-blue-500 hover:underline dark:text-blue-400"
+                  href="https://github.com/nostr-protocol/nips/blob/master/39.md"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  NIP-39
+                </Link>
+                .
               </FormDescription>
               <FormMessage />
             </FormItem>

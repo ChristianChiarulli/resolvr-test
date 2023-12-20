@@ -1,5 +1,4 @@
 import AssignedBounties from "~/components/bounty-feed/AssignedBounties";
-import BountyFilter from "~/components/bounty-feed/BountyFilter";
 import BountyTags from "~/components/bounty-feed/BountyTags";
 import OpenBounties from "~/components/bounty-feed/OpenBounties";
 import PostedBounties from "~/components/bounty-feed/PostedBounties";
