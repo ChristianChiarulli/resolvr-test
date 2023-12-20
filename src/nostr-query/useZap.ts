@@ -22,6 +22,7 @@ const useZap = ({
     SendPaymentResponse | undefined
   >(undefined);
 
+  // TODO: clean up all this spaghett
   const zap = useCallback(
     async (
       recipientProfile: Event,
