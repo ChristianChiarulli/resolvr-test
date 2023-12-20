@@ -29,7 +29,7 @@ import usePublishEvent from "~/nostr-query/usePublishEvent";
 import useEventStore from "~/store/event-store";
 import { useRelayStore } from "~/store/relay-store";
 import Link from "next/link";
-import { nip19, nip39, type Event, type EventTemplate } from "nostr-tools";
+import { nip19, type Event, type EventTemplate } from "nostr-tools";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
