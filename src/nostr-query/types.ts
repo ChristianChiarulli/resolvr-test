@@ -66,12 +66,12 @@ export interface Profile {
   location?: string;
   github?: string;
   [key: string]: unknown;
-};
+}
 
 export interface UsePublishEventParams {
   pool?: SimplePool;
   relays: string[];
-};
+}
 
 export type PublishEventStatus = "idle" | "pending" | "error" | "success";
 
@@ -80,11 +80,52 @@ export interface PublishEventParams {
   relays: string[];
   event: Event | undefined | null;
   onSeen?: (event: Event) => void;
-};
+}
+
+export type ZapStatus = "idle" | "pending" | "error" | "success";
+
+export interface ZapParams {
+  relays: string[];
+  recipientProfile: Event;
+  eventId?: string;
+  amount: number;
+  content?: string;
+  secretKey?: string;
+}
+
+export interface UseZapParams {
+  pool?: SimplePool;
+  relays: string[];
+  secretKey?: string;
+  initialDelay?: number;
+  retryInterval?: number;
+}
 
 export interface ATagParams {
   kind: string;
   pubkey: string;
   dTagValue: string;
-};
+}
 
+export interface ZapRequestParams {
+  recipientPubkey: string;
+  eventId?: string;
+  amount: number;
+  content?: string;
+  relays: string[];
+}
+
+export interface ZapResponseBody {
+  allowsNostr?: boolean;
+  nostrPubkey?: string;
+  callback?: string;
+}
+
+export interface InvoiceResponse {
+  pr: string;
+}
+
+export interface SendPaymentResponse {
+  preimage: string;
+  paymentHash: string;
+}

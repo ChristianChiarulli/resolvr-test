@@ -6,8 +6,8 @@ import { type Event } from "nostr-tools";
 import { Badge } from "../ui/badge";
 import ApplyButton from "./ApplyButton";
 import BountyMenu from "./BountyMenu";
-import CompleteButton from "./CompleteButton";
 import Profile from "./Profile";
+import useEventStore from "~/store/event-store";
 
 type Props = {
   bounty: Event | undefined;
@@ -19,6 +19,8 @@ export default function BountyMetadata({ bounty }: Props) {
 
   const isLoggedInUserBounty = pubkey && bounty?.pubkey === pubkey;
 
+  const { zapReciepts } = useEventStore();
+
   return (
     <>
       <div className="flex items-center justify-between">
@@ -26,9 +28,19 @@ export default function BountyMetadata({ bounty }: Props) {
           <SatoshiV2Icon className="h-8 w-8" />
           {Number(nq.tag("reward", bounty) ?? 0).toLocaleString()}
         </h1>
-        {nq.tag("s", bounty) && (
+        {nq.tag("s", bounty) === "open" && (
           <Badge className="text-sm" variant="outline">
             {nq.tag("s", bounty)}
+          </Badge>
+        )}
+        {bounty && nq.tag("s", bounty) === "assigned" && !zapReciepts[bounty.id] && (
+          <Badge className="text-sm" variant="outline">
+            {nq.tag("s", bounty)}
+          </Badge>
+        )}
+        {bounty && nq.tag("s", bounty) === "assigned" && zapReciepts[bounty.id] && (
+          <Badge className="text-sm" variant="outline">
+            Completed
           </Badge>
         )}
       </div>

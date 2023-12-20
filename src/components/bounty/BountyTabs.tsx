@@ -8,6 +8,7 @@ import { type Event } from "nostr-tools";
 import ApplicantFeed from "../applications/ApplicantFeed";
 import ApplicationCount from "../applications/ApplicationCount";
 import BountyDetails from "./BountyDetails";
+import Discussion from "./Discussion";
 
 type BountyTabsProps = {
   bounty: Event | undefined;
@@ -153,6 +154,19 @@ export default function BountyTabs({ bounty, selectedTab }: BountyTabsProps) {
             </span>
           </div>
           {bounty && <ApplicantFeed bounty={bounty} />}
+        </>
+      )}
+      {selectedTab === "discussion" && (
+        <>
+          <div className="flex items-center justify-between">
+            <h4 className="scroll-m-20 py-4 text-xl font-semibold tracking-tight">
+              Discussion
+            </h4>
+            <span className="text-sm text-muted-foreground">
+              {fromNow(bounty?.created_at) ?? "unknown"}
+            </span>
+          </div>
+          {bounty && <Discussion bounty={bounty} applicantPubkey={nq.tag("p", bounty)!} />}
         </>
       )}
     </div>

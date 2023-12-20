@@ -36,6 +36,7 @@ const usePublishEvent = ({
       const publishedEvent = await nq.publish(params);
 
       setStatus("success");
+      setStatus("idle");
 
       return publishedEvent;
     },
