@@ -83,15 +83,9 @@ export default function SettingsPage() {
 
   const { reset } = form;
 
-  function findFirstGithubITag(
-    tags: (string | undefined)[][],
-  ): (string | undefined)[] | undefined {
-    return tags.find((tag) => tag[0] === "i" && tag[1]?.startsWith("github"));
-  }
-
   useEffect(() => {
     const profileContent = nq.profileContent(profileMap[pubkey!]);
-    const gistId = findFirstGithubITag(profileMap[pubkey!]?.tags ?? [])?.[2];
+    const gistId = nq.findFirstGithubITag(profileMap[pubkey!]?.tags ?? [])?.[2];
     if (profileContent) {
       reset({
         username: profileContent.name,

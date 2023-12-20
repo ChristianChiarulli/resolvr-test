@@ -9,13 +9,12 @@ import { type UseProfileEventParams } from "~/nostr-query/types";
 import useProfileEvent from "~/nostr-query/useProfileEvent";
 import useEventStore from "~/store/event-store";
 import { useRelayStore } from "~/store/relay-store";
-import { GlobeIcon } from "lucide-react";
-import Link from "next/link";
 import { type Event } from "nostr-tools";
 
-import { Badge } from "../ui/badge";
+import WebsiteBadge from "../profile/WebsiteBadge";
 import AcceptApplicationButton from "./AcceptApplicationButton";
 import RemoveApplicationButton from "./RemoveApplicationButton";
+import GithubBadge from "../profile/GithubBadge";
 
 type Props = {
   applicationEvent: Event;
@@ -87,17 +86,9 @@ export default function ApplicationCard({
           <span>{fromNow(applicationEvent.created_at) ?? "unknown"}</span>
         </span>
         <span className="py-4">{applicationEvent.content}</span>
-        <span className="flex w-full justify-between pt-2 text-sm font-light text-muted-foreground">
-          <Link
-            href={`https://${nq.profileContent(profileMap[applicantPubkey]).website}` ?? "#"}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Badge className="text-xs" variant="secondary">
-              <GlobeIcon className="mr-1 h-4 w-4" />
-              {nq.profileContent(profileMap[applicantPubkey]).website}
-            </Badge>
-          </Link>
+        <span className="flex w-full justify-start gap-x-1.5 pt-2 text-sm font-light text-muted-foreground">
+          <GithubBadge pubkey={applicantPubkey} />
+          <WebsiteBadge pubkey={applicantPubkey} />
         </span>
       </div>
     </li>

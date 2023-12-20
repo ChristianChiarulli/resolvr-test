@@ -302,7 +302,6 @@ const fetchInvoice = async (zapEndpoint: string, zapRequestEvent: Event) => {
     JSON.stringify(zapRequestEvent),
   )}`;
 
-
   if (comment) {
     url = `${url}&comment=${encodeURIComponent(comment)}`;
   }
@@ -383,6 +382,12 @@ const zap = async ({
   }
 };
 
+function findFirstGithubITag(
+  tags: (string | undefined)[][],
+): (string | undefined)[] | undefined {
+  return tags.find((tag) => tag[0] === "i" && tag[1]?.startsWith("github"));
+}
+
 const nq = {
   get,
   list,
@@ -400,6 +405,7 @@ const nq = {
   zapRequest,
   zap,
   payInvoice,
+  findFirstGithubITag,
 };
 
 export default nq;
