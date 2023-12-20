@@ -64,7 +64,6 @@ export interface Profile {
   website?: string;
   banner?: string;
   location?: string;
-  github?: string;
   [key: string]: unknown;
 }
 

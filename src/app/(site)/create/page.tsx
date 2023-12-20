@@ -64,7 +64,6 @@ export default function CreateBounty() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     // TODO: hold onto form values on page change, clear on submit
-    // probably a good use case for jotai
     defaultValues: {
       title: "",
       description:
