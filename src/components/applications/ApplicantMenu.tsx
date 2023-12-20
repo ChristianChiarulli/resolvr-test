@@ -2,6 +2,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import useAuth from "~/hooks/useAuth";
@@ -11,21 +12,20 @@ import usePublishEvent from "~/nostr-query/usePublishEvent";
 import useEventStore from "~/store/event-store";
 import { useRelayStore } from "~/store/relay-store";
 import { MoreVertical } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { type Event, type EventTemplate } from "nostr-tools";
 
 import { useToast } from "../ui/use-toast";
 
 type Props = {
   applicantEvent: Event;
+  bountyEvent: Event;
 };
 
-export default function ApplicantMenu({ applicantEvent }: Props) {
+export default function ApplicantMenu({ applicantEvent, bountyEvent }: Props) {
   const { toast } = useToast();
   const { pubkey } = useAuth();
   const { pubRelays } = useRelayStore();
-  const { removeAppEvent } = useEventStore();
-  const router = useRouter();
+  const { setAppEvents, appEventMap } = useEventStore();
 
   const params: UsePublishEventParams = {
     relays: pubRelays,
@@ -48,14 +48,16 @@ export default function ApplicantMenu({ applicantEvent }: Props) {
     const event = await nq.finishEvent(eventTemplate);
 
     const onSeen = (_: Event) => {
-      removeAppEvent(applicantEvent.id);
+      setAppEvents(
+        bountyEvent.id,
+        appEventMap[bountyEvent.id]!.filter((e) => e.id !== applicantEvent.id),
+      );
+
       // TODO: if I ever get these on the server make sure to invalidate
 
-      router.push("/");
-
       toast({
-        title: "Bounty deleted",
-        description: "Your bounty has been deleted.",
+        title: "Application deleted",
+        description: "Your application has been deleted.",
       });
     };
 
@@ -70,16 +72,20 @@ export default function ApplicantMenu({ applicantEvent }: Props) {
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="mt-2">
-        {/* <DropdownMenuItem>Broadcast</DropdownMenuItem> */}
+        <DropdownMenuItem>Broadcast</DropdownMenuItem>
         {/* <DropdownMenuItem>View Raw</DropdownMenuItem> */}
-        {/* <DropdownMenuSeparator /> */}
-        <DropdownMenuItem
-          onClick={handleDelete}
-          disabled={status !== "idle"}
-          className="dark:text-red-400 dark:focus:bg-red-400/10 dark:focus:text-red-400 "
-        >
-          Delete Bounty
-        </DropdownMenuItem>
+        {pubkey === applicantEvent.pubkey && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={handleDelete}
+              disabled={status !== "idle"}
+              className="dark:text-red-400 dark:focus:bg-red-400/10 dark:focus:text-red-400 "
+            >
+              Delete Bounty
+            </DropdownMenuItem>
+          </>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

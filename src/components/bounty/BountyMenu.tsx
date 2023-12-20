@@ -2,6 +2,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import useAuth from "~/hooks/useAuth";
@@ -84,17 +85,19 @@ export default function BountyMenu({ bounty }: Props) {
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="mt-2">
-        {/* <DropdownMenuItem>Broadcast</DropdownMenuItem> */}
+        <DropdownMenuItem>Broadcast</DropdownMenuItem>
         {/* <DropdownMenuItem>View Raw</DropdownMenuItem> */}
-        {/* <DropdownMenuSeparator /> */}
         {pubkey === bounty.pubkey && (
-          <DropdownMenuItem
-            onClick={handleDelete}
-            disabled={status !== "idle"}
-            className="dark:text-red-400 dark:focus:bg-red-400/10 dark:focus:text-red-400 "
-          >
-            Delete Bounty
-          </DropdownMenuItem>
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={handleDelete}
+              disabled={status !== "idle"}
+              className="dark:text-red-400 dark:focus:bg-red-400/10 dark:focus:text-red-400 "
+            >
+              Delete Bounty
+            </DropdownMenuItem>
+          </>
         )}
       </DropdownMenuContent>
     </DropdownMenu>

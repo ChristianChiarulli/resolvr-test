@@ -11,11 +11,11 @@ import useEventStore from "~/store/event-store";
 import { useRelayStore } from "~/store/relay-store";
 import { type Event } from "nostr-tools";
 
+import GithubBadge from "../profile/GithubBadge";
 import WebsiteBadge from "../profile/WebsiteBadge";
 import AcceptApplicationButton from "./AcceptApplicationButton";
-import RemoveApplicationButton from "./RemoveApplicationButton";
-import GithubBadge from "../profile/GithubBadge";
 import ApplicantMenu from "./ApplicantMenu";
+import RemoveApplicationButton from "./RemoveApplicationButton";
 
 type Props = {
   applicationEvent: Event;
@@ -59,29 +59,31 @@ export default function ApplicationCard({
             {nq.profileContent(profileMap[applicantPubkey]).name ||
               nq.shortNpub(applicantPubkey)}
           </span>
-          <ApplicantMenu applicantEvent={applicationEvent} />
-          {pubkey === bountyEvent.pubkey &&
-            !nq.tag("p", bountyEvent) &&
-            !zapRecieptMap[bountyEvent.id] && (
-              <AcceptApplicationButton
-                applicationEvent={applicationEvent}
-                bountyEvent={bountyEvent}
-              />
-            )}
-          {pubkey === bountyEvent.pubkey &&
-            nq.tag("p", bountyEvent) === applicationEvent.pubkey &&
-            !zapRecieptMap[bountyEvent.id] && (
-              <RemoveApplicationButton
-                applicationEvent={applicationEvent}
-                bountyEvent={bountyEvent}
-              />
-            )}
-          {nq.tag("p", bountyEvent) === applicationEvent.pubkey &&
-            zapRecieptMap[bountyEvent.id] && (
-              <span className="inline-flex h-9 items-center justify-center whitespace-nowrap rounded-md px-3 text-sm font-medium text-green-500 dark:text-green-400">
-                Solution Accepted
-              </span>
-            )}
+          <div className="flex items-center gap-x-1.5">
+            {pubkey === bountyEvent.pubkey &&
+              !nq.tag("p", bountyEvent) &&
+              !zapRecieptMap[bountyEvent.id] && (
+                <AcceptApplicationButton
+                  applicationEvent={applicationEvent}
+                  bountyEvent={bountyEvent}
+                />
+              )}
+            {pubkey === bountyEvent.pubkey &&
+              nq.tag("p", bountyEvent) === applicationEvent.pubkey &&
+              !zapRecieptMap[bountyEvent.id] && (
+                <RemoveApplicationButton
+                  applicationEvent={applicationEvent}
+                  bountyEvent={bountyEvent}
+                />
+              )}
+            {nq.tag("p", bountyEvent) === applicationEvent.pubkey &&
+              zapRecieptMap[bountyEvent.id] && (
+                <span className="inline-flex h-9 items-center justify-center whitespace-nowrap rounded-md px-3 text-sm font-medium text-green-500 dark:text-green-400">
+                  Solution Accepted
+                </span>
+              )}
+            <ApplicantMenu applicantEvent={applicationEvent} bountyEvent={bountyEvent} />
+          </div>
         </span>
         <span className="flex gap-x-1 text-sm text-muted-foreground">
           <span>Applied</span>
