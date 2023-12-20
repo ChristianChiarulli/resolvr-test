@@ -121,7 +121,7 @@ export default function BountyTabs({ bounty, selectedTab }: BountyTabsProps) {
       <div className="w-full sm:block">
         <div className="border-b">
           <nav
-            className="no-scrollbar -mb-px flex space-x-8 overflow-x-auto"
+            className="no-scrollbar -mb-px flex sm:space-x-8 space-x-2 overflow-x-auto"
             aria-label="Tabs"
           >
             <DetailTab selectedTab={selectedTab} bounty={bounty} />

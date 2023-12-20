@@ -24,7 +24,7 @@ export default function ApplicationCard({
   bountyEvent,
 }: Props) {
   const applicantPubkey = applicationEvent.pubkey;
-  const { profileMap, addProfile } = useEventStore();
+  const { profileMap, addProfile, zapRecieptMap } = useEventStore();
   const { subRelays } = useRelayStore();
   const { pubkey } = useAuth();
 
@@ -56,18 +56,28 @@ export default function ApplicationCard({
             {nq.profileContent(profileMap[applicantPubkey]).name ||
               nq.shortNpub(applicantPubkey)}
           </span>
-          {pubkey === bountyEvent.pubkey && !nq.tag("p", bountyEvent) && (
-            <AcceptApplicationButton
-              applicationEvent={applicationEvent}
-              bountyEvent={bountyEvent}
-            />
-          )}
           {pubkey === bountyEvent.pubkey &&
-            nq.tag("p", bountyEvent) === applicationEvent.pubkey && (
+            !nq.tag("p", bountyEvent) &&
+            !zapRecieptMap[bountyEvent.id] && (
+              <AcceptApplicationButton
+                applicationEvent={applicationEvent}
+                bountyEvent={bountyEvent}
+              />
+            )}
+          {pubkey === bountyEvent.pubkey &&
+            nq.tag("p", bountyEvent) === applicationEvent.pubkey &&
+            !zapRecieptMap[bountyEvent.id] && (
               <RemoveApplicationButton
                 applicationEvent={applicationEvent}
                 bountyEvent={bountyEvent}
               />
+            )}
+          {pubkey === bountyEvent.pubkey &&
+            nq.tag("p", bountyEvent) === applicationEvent.pubkey &&
+            zapRecieptMap[bountyEvent.id] && (
+              <span className="inline-flex h-9 items-center justify-center whitespace-nowrap rounded-md px-3 text-sm font-medium text-green-500 dark:text-green-400">
+                Solution Accepted
+              </span>
             )}
         </span>
         <span className="flex gap-x-1 text-sm text-muted-foreground">
