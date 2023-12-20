@@ -72,8 +72,7 @@ export default function ApplicationCard({
                 bountyEvent={bountyEvent}
               />
             )}
-          {pubkey === bountyEvent.pubkey &&
-            nq.tag("p", bountyEvent) === applicationEvent.pubkey &&
+          {nq.tag("p", bountyEvent) === applicationEvent.pubkey &&
             zapRecieptMap[bountyEvent.id] && (
               <span className="inline-flex h-9 items-center justify-center whitespace-nowrap rounded-md px-3 text-sm font-medium text-green-500 dark:text-green-400">
                 Solution Accepted
