@@ -22,7 +22,6 @@ export default async function UserProfile({ params }: Props) {
       loggedIn = true;
     }
   }
-  // TODO: get public key from URL
 
   const npub = params.npub;
   if (!npub) {
