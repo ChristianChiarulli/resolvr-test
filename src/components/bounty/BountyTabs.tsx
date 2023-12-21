@@ -121,7 +121,7 @@ export default function BountyTabs({ bounty, selectedTab }: BountyTabsProps) {
       <div className="w-full sm:block">
         <div className="border-b">
           <nav
-            className="no-scrollbar -mb-px flex sm:space-x-8 space-x-2 overflow-x-auto"
+            className="no-scrollbar -mb-px flex space-x-2 overflow-x-auto sm:space-x-8"
             aria-label="Tabs"
           >
             <DetailTab selectedTab={selectedTab} bounty={bounty} />
@@ -140,7 +140,7 @@ export default function BountyTabs({ bounty, selectedTab }: BountyTabsProps) {
               {fromNow(bounty?.created_at) ?? "unknown"}
             </span>
           </div>
-          {bounty?.content && <BountyDetails details={bounty?.content} />}
+          {bounty?.content && <BountyDetails bounty={bounty} />}
         </>
       )}
       {selectedTab === "applications" && (
@@ -166,7 +166,12 @@ export default function BountyTabs({ bounty, selectedTab }: BountyTabsProps) {
               {fromNow(bounty?.created_at) ?? "unknown"}
             </span>
           </div>
-          {bounty && <Discussion bounty={bounty} applicantPubkey={nq.tag("p", bounty)!} />}
+          {bounty && (
+            <Discussion
+              bounty={bounty}
+              applicantPubkey={nq.tag("p", bounty)!}
+            />
+          )}
         </>
       )}
     </div>
