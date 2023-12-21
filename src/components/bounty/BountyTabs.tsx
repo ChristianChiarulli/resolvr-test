@@ -81,8 +81,7 @@ function DiscussionTab({ selectedTab, bounty }: TabProps) {
 
   if (
     !pubkey ||
-    (pubkey !== bounty?.pubkey && nq.tag("p", bounty)) ||
-    pubkey !== nq.tag("p", bounty)
+    (pubkey !== bounty?.pubkey && pubkey !== nq.tag("p", bounty))
   ) {
     return (
       <span className="group inline-flex cursor-not-allowed items-center border-b border-transparent px-1 py-4 text-sm font-medium text-muted-foreground">
