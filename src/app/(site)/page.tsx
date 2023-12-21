@@ -106,7 +106,7 @@ export default async function HomePage({
   ) as Event[];
 
   return (
-    <div className="min-h-screen w-full flex-col items-center">
+    <div className="w-full flex-col items-center">
       {loggedIn && (
         <div className="flex flex-col py-4">
           <Tabs defaultValue={selectedTab}>
