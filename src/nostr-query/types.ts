@@ -129,3 +129,9 @@ export interface SendPaymentResponse {
   preimage: string;
   paymentHash: string;
 }
+
+export interface EncryptMessageParams {
+  recipientPublicKey: string;
+  message: string;
+  secretKey?: string;
+}

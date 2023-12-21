@@ -32,6 +32,7 @@ import { Textarea } from "~/components/ui/textarea";
 import useAuth from "~/hooks/useAuth";
 import { TAGS } from "~/lib/constants";
 import { cn, createIdentifier } from "~/lib/utils";
+import nq from "~/nostr-query";
 import { revalidateCachedTag } from "~/nostr-query/server";
 import { type UsePublishEventParams } from "~/nostr-query/types";
 import usePublishEvent from "~/nostr-query/usePublishEvent";
@@ -39,7 +40,7 @@ import useEventStore from "~/store/event-store";
 import { useRelayStore } from "~/store/relay-store";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { getEventHash, type Event } from "nostr-tools";
+import { type EventTemplate, type Event } from "nostr-tools";
 import { useForm } from "react-hook-form";
 import Markdown from "react-markdown";
 import * as z from "zod";
@@ -74,8 +75,7 @@ export default function CreateBounty() {
     },
   });
   const { pubRelays } = useRelayStore();
-  // const { newPostEvents, setNewPostEvents } = useEventStore();
-  const { pubkey } = useAuth();
+  const { pubkey, seckey } = useAuth();
 
   const {
     openBountyEvents,
@@ -131,17 +131,15 @@ export default function CreateBounty() {
       ["t", tag],
     ];
 
-    let event: Event = {
+    const eventTemplate: EventTemplate = {
       kind: 30050,
       tags: tags,
       content: description,
       created_at: Math.floor(Date.now() / 1000),
-      pubkey: pubkey,
-      id: "",
-      sig: "",
     };
-    event.id = getEventHash(event);
-    event = (await nostr.signEvent(event)) as Event;
+
+    const event = await nq.finishEvent(eventTemplate, seckey);
+
     const onSeen = (event: Event) => {
       if (openBountyEvents.length > 0) {
         setOpenBountyEvents([event, ...openBountyEvents]);
@@ -157,6 +155,9 @@ export default function CreateBounty() {
 
       router.push("/");
     };
+
+    // TODO: error toast
+    if (!event) return;
 
     await publishEvent(event, onSeen);
   }

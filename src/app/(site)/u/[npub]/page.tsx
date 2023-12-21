@@ -45,13 +45,9 @@ export default async function UserProfile({ params }: Props) {
   };
 
   return (
-    <>
-      {loggedIn && (
-        <div className="flex md:gap-x-4">
-          <ProfileCard pubkey={profilePublicKey} />
-          <ProfileFeed pubkey={profilePublicKey} filter={filter} />
-        </div>
-      )}
-    </>
+    <div className="flex md:gap-x-4">
+      <ProfileCard pubkey={profilePublicKey} />
+      <ProfileFeed pubkey={profilePublicKey} filter={filter} />
+    </div>
   );
 }

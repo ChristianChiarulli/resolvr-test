@@ -6,7 +6,7 @@ import usePublishEvent from "~/nostr-query/usePublishEvent";
 import useEventStore from "~/store/event-store";
 import { useRelayStore } from "~/store/relay-store";
 import { Check } from "lucide-react";
-import { getEventHash, type Event } from "nostr-tools";
+import { type EventTemplate, type Event } from "nostr-tools";
 
 import { Button } from "../ui/button";
 
@@ -19,7 +19,7 @@ export default function AcceptApplicationButton({
   applicationEvent,
   bountyEvent,
 }: Props) {
-  const { pubkey } = useAuth();
+  const { pubkey, seckey } = useAuth();
   const {
     openBountyEvents,
     postedBountyEvents,
@@ -80,17 +80,21 @@ export default function AcceptApplicationButton({
       });
     }
 
-    let event: Event = {
+    const eventTemplate: EventTemplate = {
       kind: 30050,
       tags: tags,
       content: bountyEvent.content,
       created_at: Math.floor(Date.now() / 1000),
-      pubkey: pubkey,
-      id: "",
-      sig: "",
+      // pubkey: pubkey,
+      // id: "",
+      // sig: "",
     };
-    event.id = getEventHash(event);
-    event = (await nostr.signEvent(event)) as Event;
+
+    // event.id = getEventHash(event);
+    // event = (await nostr.signEvent(event)) as Event;
+
+    const event = await nq.finishEvent(eventTemplate, seckey);
+
     const onSeen = (event: Event) => {
       if (openBountyEvents.length > 0) {
         removeOpenBountyEvent(bountyEvent.id);
@@ -110,6 +114,11 @@ export default function AcceptApplicationButton({
       const bountyPubkey = bountyEvent.pubkey;
       revalidateCachedTag(`${dTagValue}-${bountyPubkey}`);
     };
+
+    if (!event) {
+      // TODO: show error toast
+      return;
+    }
 
     await publishEvent(event, onSeen);
   }

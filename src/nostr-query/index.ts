@@ -2,6 +2,7 @@ import {
   getEventHash,
   getPublicKey,
   getSignature,
+  nip04,
   nip19,
   SimplePool,
   type Event,
@@ -13,6 +14,7 @@ import { type AddressPointer } from "nostr-tools/nip19";
 import {
   type ATagParams,
   type BatchedProfileEventsParams,
+  type EncryptMessageParams,
   type GetEventParams,
   type InvoiceResponse,
   type ListEventsParams,
@@ -388,6 +390,24 @@ function findFirstGithubITag(
   return tags.find((tag) => tag[0] === "i" && tag[1]?.startsWith("github"));
 }
 
+const encryptMessage = async ({
+  recipientPublicKey,
+  message,
+  secretKey,
+}: EncryptMessageParams) => {
+  let encryptedMessage;
+  if (secretKey) {
+    encryptedMessage = await nip04.encrypt(
+      secretKey,
+      recipientPublicKey,
+      message,
+    );
+  } else {
+    encryptedMessage = await nostr.nip04.encrypt(recipientPublicKey, message);
+  }
+  return encryptedMessage;
+};
+
 const nq = {
   get,
   list,
@@ -406,6 +426,7 @@ const nq = {
   zap,
   payInvoice,
   findFirstGithubITag,
+  encryptMessage,
 };
 
 export default nq;
