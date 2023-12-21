@@ -18,9 +18,13 @@ import ApplicationCount from "../applications/ApplicationCount";
 
 type Props = {
   bountyEvent: Event;
+  showProfileInfo?: boolean;
 };
 
-export default function BountyCard({ bountyEvent }: Props) {
+export default function BountyCard({
+  bountyEvent,
+  showProfileInfo = true,
+}: Props) {
   const pubkey = bountyEvent.pubkey;
   const { profileMap, addProfile } = useEventStore();
   const { subRelays } = useRelayStore();
@@ -39,28 +43,42 @@ export default function BountyCard({ bountyEvent }: Props) {
   return (
     <Link href={`/b/${nq.createNaddr(bountyEvent, subRelays)}`}>
       <li className="flex cursor-pointer items-center gap-x-4 border-t p-4 hover:bg-muted/40">
-        <img
-          src={
-            nq.profileContent(profileMap[pubkey]).picture ||
-            BOT_AVATAR_ENDPOINT + pubkey
-          }
-          alt=""
-          className="aspect-square w-16 rounded-md border border-border dark:border-border"
-        />
-
+        {showProfileInfo && (
+          <img
+            src={
+              nq.profileContent(profileMap[pubkey]).picture ||
+              BOT_AVATAR_ENDPOINT + pubkey
+            }
+            alt=""
+            className="aspect-square w-16 rounded-md border border-border dark:border-border"
+          />
+        )}
         <div className="flex w-full flex-col gap-y-1">
-          <span className="flex w-full justify-between pb-1">
-            <span className="text-sm font-light text-muted-foreground">
-              {nq.profileContent(profileMap[pubkey]).name ||
-                nq.shortNpub(pubkey)}
+          {showProfileInfo && (
+            <span className="flex w-full justify-between pb-1">
+              <span className="text-sm font-light text-muted-foreground">
+                {nq.profileContent(profileMap[pubkey]).name ||
+                  nq.shortNpub(pubkey)}
+              </span>
+              {nq.tag("t", bountyEvent) && (
+                <Badge variant="outline">{nq.tag("t", bountyEvent)}</Badge>
+              )}
             </span>
-            {nq.tag("t", bountyEvent) && (
-              <Badge variant="outline">{nq.tag("t", bountyEvent)}</Badge>
-            )}
-          </span>
-          <span className="text-base text-card-foreground">
-            {nq.tag("title", bountyEvent)}
-          </span>
+          )}
+          {showProfileInfo ? (
+            <span className="text-base text-card-foreground">
+              {nq.tag("title", bountyEvent)}
+            </span>
+          ) : (
+            <span className="flex w-full justify-between pb-1">
+              <span className="text-base text-card-foreground">
+                {nq.tag("title", bountyEvent)}
+              </span>
+              {nq.tag("t", bountyEvent) && (
+                <Badge variant="outline">{nq.tag("t", bountyEvent)}</Badge>
+              )}
+            </span>
+          )}
           <span className="flex items-center text-lg font-semibold text-orange-500 dark:text-orange-400">
             <SatoshiV2Icon className="h-6 w-6" />
             {Number(nq.tag("reward", bountyEvent)).toLocaleString()}

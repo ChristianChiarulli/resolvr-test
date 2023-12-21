@@ -39,6 +39,11 @@ export interface EventState {
   addProfileBountyMap: (pubkey: string, bountyId: string, event: Event) => void;
   removeProfileBountyMap: (pubkey: string, bountyId: string) => void;
 
+  profileBounties: Record<string, Event[]>;
+  addProfileBounty: (pubkey: string, event: Event) => void;
+  setProfileBounties: (pubkey: string, events: Event[]) => void;
+  removeProfileBounty: (pubkey: string, id: string) => void;
+
   zapRecieptMap: Record<string, Event>;
   addZapReciept: (eventId: string, event: Event) => void;
 }
@@ -170,6 +175,30 @@ const useEventStore = create<EventState>()(
         delete updatedMap[pubkey]![bountyId];
         return { profileBountyMap: updatedMap };
       }),
+
+    profileBounties: {},
+    addProfileBounty: (pubkey, event) =>
+      set((prev) => ({
+        profileBounties: {
+          ...prev.profileBounties,
+          [pubkey]: [...(prev.profileBounties[pubkey] ?? []), event],
+        },
+      })),
+    setProfileBounties: (pubkey, events) =>
+      set((prev) => ({
+        profileBounties: {
+          ...prev.profileBounties,
+          [pubkey]: events,
+        },
+      })),
+    removeProfileBounty: (pubkey, id) =>
+      set((prev) => ({
+        profileBounties: {
+          ...prev.profileBounties,
+          [pubkey]:
+            prev.profileBounties[pubkey]?.filter((e) => e.id !== id) || [],
+        },
+      })),
 
     zapRecieptMap: {},
     addZapReciept: (eventId, event) =>

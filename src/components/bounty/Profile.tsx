@@ -8,6 +8,8 @@ import { type UseProfileEventParams } from "~/nostr-query/types";
 import useProfileEvent from "~/nostr-query/useProfileEvent";
 import useEventStore from "~/store/event-store";
 import { useRelayStore } from "~/store/relay-store";
+import Link from "next/link";
+import { nip19 } from "nostr-tools";
 
 type Props = {
   pubkey: string;
@@ -29,7 +31,10 @@ export default function Profile({ pubkey }: Props) {
   useProfileEvent(params);
 
   return (
-    <div className="flex items-center gap-x-2">
+    <Link
+      className="flex items-center gap-x-2"
+      href={`/u/${nip19.npubEncode(pubkey)}`}
+    >
       <img
         src={
           nq.profileContent(profileMap[pubkey]).picture ||
@@ -41,6 +46,6 @@ export default function Profile({ pubkey }: Props) {
       <span className="text-base text-muted-foreground">
         {nq.profileContent(profileMap[pubkey]).name || nq.shortNpub(pubkey)}
       </span>
-    </div>
+    </Link>
   );
 }
