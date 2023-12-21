@@ -80,38 +80,39 @@ function DiscussionTab({ selectedTab, bounty }: TabProps) {
   const { pubkey } = useAuth();
 
   if (
-    // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-    (pubkey === bounty?.pubkey && nq.tag("p", bounty)) ||
-    pubkey === nq.tag("p", bounty)
+    !pubkey ||
+    (pubkey !== bounty?.pubkey && nq.tag("p", bounty)) ||
+    pubkey !== nq.tag("p", bounty)
   ) {
     return (
-      <Link
-        replace={true}
-        href={"?tab=discussion"}
-        className={cn(
-          selectedTab === "discussion"
-            ? "border-indigo-600 text-indigo-600 dark:border-indigo-500 dark:text-indigo-500"
-            : "border-transparent text-muted-foreground hover:border-foreground hover:text-foreground",
-          "group inline-flex items-center border-b px-1 py-4 text-sm font-medium",
-        )}
-      >
-        <MessagesSquare
-          className={cn(
-            selectedTab === "discussion"
-              ? "text-indigo-600 dark:text-indigo-500"
-              : "text-muted-foreground group-hover:text-foreground",
-            "-ml-0.5 mr-2 h-5 w-5",
-          )}
-        />
+      <span className="group inline-flex cursor-not-allowed items-center border-b border-transparent px-1 py-4 text-sm font-medium text-muted-foreground">
+        <LockIcon className="-ml-0.5 mr-2 h-5 w-5 text-muted-foreground" />
         <span>Discussion</span>
-      </Link>
+      </span>
     );
   }
+
   return (
-    <span className="group inline-flex cursor-not-allowed items-center border-b border-transparent px-1 py-4 text-sm font-medium text-muted-foreground">
-      <LockIcon className="-ml-0.5 mr-2 h-5 w-5 text-muted-foreground" />
+    <Link
+      replace={true}
+      href={"?tab=discussion"}
+      className={cn(
+        selectedTab === "discussion"
+          ? "border-indigo-600 text-indigo-600 dark:border-indigo-500 dark:text-indigo-500"
+          : "border-transparent text-muted-foreground hover:border-foreground hover:text-foreground",
+        "group inline-flex items-center border-b px-1 py-4 text-sm font-medium",
+      )}
+    >
+      <MessagesSquare
+        className={cn(
+          selectedTab === "discussion"
+            ? "text-indigo-600 dark:text-indigo-500"
+            : "text-muted-foreground group-hover:text-foreground",
+          "-ml-0.5 mr-2 h-5 w-5",
+        )}
+      />
       <span>Discussion</span>
-    </span>
+    </Link>
   );
 }
 

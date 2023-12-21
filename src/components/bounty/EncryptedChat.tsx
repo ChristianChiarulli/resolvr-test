@@ -116,6 +116,9 @@ export default function EncryptedChat({ bounty }: Props) {
 
     const event = await nq.finishEvent(eventTemplate, seckey);
 
+    // TODO: error toast
+    if (!event) return;
+
     console.log("message", event);
 
     const onSeen = (event: Event) => {
