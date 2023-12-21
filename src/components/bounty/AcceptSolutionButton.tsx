@@ -96,11 +96,13 @@ export default function AcceptSolutionButton({
   return (
     <div className="flex justify-end">
       <div>
-        {zapRecieptMap[bounty.id] ? (
+        {zapRecieptMap[bounty.id] && (
           <span className="inline-flex h-9 items-center justify-center whitespace-nowrap rounded-md px-3 text-sm font-medium text-green-500 dark:text-green-400">
             Bounty Paid
           </span>
-        ) : (
+        )}
+
+        {!zapRecieptMap[bounty.id] && bounty.pubkey === pubkey && (
           <Button onClick={sendZap}>
             <Zap className="mr-1 h-4 w-4" />
             Accept Solution ({status})
