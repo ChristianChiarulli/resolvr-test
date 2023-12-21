@@ -29,7 +29,7 @@ function DetailTab({ selectedTab }: TabProps) {
       className={cn(
         selectedTab === "details"
           ? "border-indigo-600 text-indigo-600 dark:border-indigo-500 dark:text-indigo-500"
-          : "border-transparent text-muted-foreground hover:border-primary-foreground hover:text-primary-foreground",
+          : "border-transparent text-muted-foreground hover:border-foreground hover:text-foreground",
         "group inline-flex items-center border-b px-1 py-4 text-sm font-medium",
       )}
     >
@@ -37,7 +37,7 @@ function DetailTab({ selectedTab }: TabProps) {
         className={cn(
           selectedTab === "details"
             ? "text-indigo-600 dark:text-indigo-500"
-            : "text-muted-foreground group-hover:text-primary-foreground",
+            : "text-muted-foreground group-hover:text-foreground",
           "-ml-0.5 mr-2 h-5 w-5",
         )}
       />
@@ -54,7 +54,7 @@ function ApplicationTab({ selectedTab, bounty }: TabProps) {
       className={cn(
         selectedTab === "applications"
           ? "border-indigo-600 text-indigo-600 dark:border-indigo-500 dark:text-indigo-500"
-          : "border-transparent text-muted-foreground hover:border-primary-foreground hover:text-primary-foreground",
+          : "border-transparent text-muted-foreground hover:border-foreground hover:text-foreground",
         "group inline-flex items-center border-b px-1 py-4 text-sm font-medium",
       )}
     >
@@ -62,7 +62,7 @@ function ApplicationTab({ selectedTab, bounty }: TabProps) {
         className={cn(
           selectedTab === "applications"
             ? "text-indigo-600 dark:text-indigo-500"
-            : "text-muted-foreground group-hover:text-primary-foreground",
+            : "text-muted-foreground group-hover:text-foreground",
           "-ml-0.5 mr-2 h-5 w-5",
         )}
       />
@@ -91,7 +91,7 @@ function DiscussionTab({ selectedTab, bounty }: TabProps) {
         className={cn(
           selectedTab === "discussion"
             ? "border-indigo-600 text-indigo-600 dark:border-indigo-500 dark:text-indigo-500"
-            : "border-transparent text-muted-foreground hover:border-primary-foreground hover:text-primary-foreground",
+            : "border-transparent text-muted-foreground hover:border-foreground hover:text-foreground",
           "group inline-flex items-center border-b px-1 py-4 text-sm font-medium",
         )}
       >
@@ -99,7 +99,7 @@ function DiscussionTab({ selectedTab, bounty }: TabProps) {
           className={cn(
             selectedTab === "discussion"
               ? "text-indigo-600 dark:text-indigo-500"
-              : "text-muted-foreground group-hover:text-primary-foreground",
+              : "text-muted-foreground group-hover:text-foreground",
             "-ml-0.5 mr-2 h-5 w-5",
           )}
         />
