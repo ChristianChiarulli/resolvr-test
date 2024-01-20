@@ -1,5 +1,4 @@
 import useAuth from "~/hooks/useAuth";
-import nq from "~/nostr-query";
 import { revalidateCachedTag } from "~/nostr-query/server";
 import { type UsePublishEventParams } from "~/nostr-query/types";
 import usePublishEvent from "~/nostr-query/usePublishEvent";
@@ -9,6 +8,7 @@ import { XIcon } from "lucide-react";
 import { getEventHash, type Event } from "nostr-tools";
 
 import { Button } from "../ui/button";
+import { allTags, tag } from "react-nostr";
 
 type Props = {
   applicationEvent: Event;
@@ -47,11 +47,11 @@ export default function RemoveApplicationButton({
       return;
     }
 
-    const identifier = nq.tag("d", bountyEvent);
-    const title = nq.tag("title", bountyEvent);
-    const reward = nq.tag("reward", bountyEvent);
-    const currency = nq.tag("c", bountyEvent);
-    const tTags = nq.tags("t", bountyEvent);
+    const identifier = tag("d", bountyEvent);
+    const title = tag("title", bountyEvent);
+    const reward = tag("reward", bountyEvent);
+    const currency = tag("c", bountyEvent);
+    const tTags = allTags("t", bountyEvent);
 
     if (!identifier || !title || !reward || !currency) {
       return;
@@ -98,7 +98,7 @@ export default function RemoveApplicationButton({
       revalidateCachedTag("open-bounties");
       revalidateCachedTag(`posted-bounties-${pubkey}`);
       revalidateCachedTag(`assigned-bounties-${applicationEvent.pubkey}`);
-      const dTagValue = nq.tag("d", bountyEvent);
+      const dTagValue = tag("d", bountyEvent);
       const bountyPubkey = bountyEvent.pubkey;
       revalidateCachedTag(`${dTagValue}-${bountyPubkey}`);
     };

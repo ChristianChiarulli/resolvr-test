@@ -32,7 +32,6 @@ import { Textarea } from "~/components/ui/textarea";
 import useAuth from "~/hooks/useAuth";
 import { TAGS } from "~/lib/constants";
 import { cn, createIdentifier } from "~/lib/utils";
-import nq from "~/nostr-query";
 import { revalidateCachedTag } from "~/nostr-query/server";
 import { type UsePublishEventParams } from "~/nostr-query/types";
 import usePublishEvent from "~/nostr-query/usePublishEvent";
@@ -44,6 +43,7 @@ import { type EventTemplate, type Event } from "nostr-tools";
 import { useForm } from "react-hook-form";
 import Markdown from "react-markdown";
 import * as z from "zod";
+import { finishEvent } from "react-nostr";
 
 const formSchema = z.object({
   title: z
@@ -138,7 +138,7 @@ export default function CreateBounty() {
       created_at: Math.floor(Date.now() / 1000),
     };
 
-    const event = await nq.finishEvent(eventTemplate, seckey);
+    const event = await finishEvent(eventTemplate, seckey);
 
     const onSeen = (event: Event) => {
       if (openBountyEvents.length > 0) {

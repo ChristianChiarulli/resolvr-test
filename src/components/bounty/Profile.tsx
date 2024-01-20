@@ -3,13 +3,13 @@
 "use client";
 
 import { BOT_AVATAR_ENDPOINT } from "~/lib/constants";
-import nq from "~/nostr-query";
 import { type UseProfileEventParams } from "~/nostr-query/types";
 import useProfileEvent from "~/nostr-query/useProfileEvent";
 import useEventStore from "~/store/event-store";
 import { useRelayStore } from "~/store/relay-store";
 import Link from "next/link";
 import { nip19 } from "nostr-tools";
+import { profileContent, shortNpub } from "react-nostr";
 
 type Props = {
   pubkey: string;
@@ -37,14 +37,14 @@ export default function Profile({ pubkey }: Props) {
     >
       <img
         src={
-          nq.profileContent(profileMap[pubkey]).picture ||
+          profileContent(profileMap[pubkey]).picture ||
           BOT_AVATAR_ENDPOINT + pubkey
         }
         alt=""
         className="aspect-square w-8 rounded-full border border-border dark:border-border"
       />
       <span className="text-base text-muted-foreground">
-        {nq.profileContent(profileMap[pubkey]).name || nq.shortNpub(pubkey)}
+        {profileContent(profileMap[pubkey]).name || shortNpub(pubkey)}
       </span>
     </Link>
   );

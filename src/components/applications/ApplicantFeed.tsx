@@ -2,7 +2,6 @@
 
 import { useMemo } from "react";
 
-import nq from "~/nostr-query";
 import { type ATagParams, type UseListEventsParams } from "~/nostr-query/types";
 import useListEvents from "~/nostr-query/useListEvents";
 import useEventStore from "~/store/event-store";
@@ -13,6 +12,7 @@ import { ToastAction } from "../ui/toast";
 import { useToast } from "../ui/use-toast";
 import ApplicationCard from "./ApplicantCard";
 import ApplicationLoadButton from "./ApplicationLoadButton";
+import { createATag, tag } from "react-nostr";
 
 type Props = {
   bounty: Event;
@@ -40,12 +40,12 @@ export default function ApplicationFeed({ bounty }: Props) {
     () => ({
       kind: "30050",
       pubkey: bounty.pubkey,
-      dTagValue: nq.tag("d", bounty) ?? "",
+      dTagValue: tag("d", bounty) ?? "",
     }),
     [bounty],
   );
 
-  const aTag = useMemo(() => nq.createATag(aTagParams), [aTagParams]);
+  const aTag = useMemo(() => createATag(aTagParams), [aTagParams]);
 
   const filter: Filter = {
     kinds: [8050],

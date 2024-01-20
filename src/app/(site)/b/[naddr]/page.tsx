@@ -1,10 +1,10 @@
 import BackButton from "~/components/bounty/BackButton";
 import Bounty from "~/components/bounty/Bounty";
 import InvalidNaddr from "~/components/bounty/InvalidNaddr";
-import nq from "~/nostr-query";
-import { type GetEventParams } from "~/nostr-query/types";
+import { get } from "~/server/nostr";
 import { unstable_cache } from "next/cache";
 import { nip19, type Event, type Filter } from "nostr-tools";
+import { type RelayUrl } from "react-nostr";
 
 export default async function BountyPage({
   params,
@@ -45,7 +45,7 @@ export default async function BountyPage({
 
   const identifier = addressPointer.identifier;
   const pubkey = addressPointer.pubkey;
-  const relays = addressPointer.relays;
+  const relays = addressPointer.relays as RelayUrl[];
 
   if (!identifier || !pubkey) {
     return <InvalidNaddr />;
@@ -65,18 +65,13 @@ export default async function BountyPage({
     "#d": [identifier],
   };
 
-  const getEventparams: GetEventParams = {
-    relays:
-      relays && relays.length > 0
-        ? relays
-        : ["wss://nos.lol", "wss://relay.damus.io"],
-    filter,
-  };
-
   const getCachedEvents = unstable_cache(
-    async (params: GetEventParams) => {
+    async (relays: RelayUrl[], filter: Filter) => {
       console.log("CACHING SINGLE BOUNTY EVENT");
-      const bountyEvent = await nq.get(params);
+      const bountyEvent = await get(
+        relays ?? ["wss://nos.lol", "wss://relay.damus.io"],
+        filter,
+      );
       if (!bountyEvent) {
         throw new Error("Bounty not found");
       }
@@ -89,7 +84,7 @@ export default async function BountyPage({
   let bountyEvent;
 
   try {
-    bountyEvent = await getCachedEvents(getEventparams);
+    bountyEvent = await getCachedEvents(relays, filter);
     bountyEvent = JSON.parse(JSON.stringify(bountyEvent)) as Event;
   } catch (e) {
     console.log("e: ", e);

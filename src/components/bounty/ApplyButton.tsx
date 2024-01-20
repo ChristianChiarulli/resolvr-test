@@ -2,7 +2,6 @@ import { useState } from "react";
 
 import { SatoshiV2Icon } from "@bitcoin-design/bitcoin-icons-react/filled";
 import useAuth from "~/hooks/useAuth";
-import nq from "~/nostr-query";
 import {
   type ATagParams,
   type UsePublishEventParams,
@@ -11,7 +10,7 @@ import usePublishEvent from "~/nostr-query/usePublishEvent";
 import useEventStore from "~/store/event-store";
 import { useRelayStore } from "~/store/relay-store";
 import { UserPlus2 } from "lucide-react";
-import { getEventHash, getSignature, type Event } from "nostr-tools";
+import { type Event, type EventTemplate } from "nostr-tools";
 
 import { Button } from "../ui/button";
 import {
@@ -24,6 +23,7 @@ import {
 } from "../ui/dialog";
 import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
+import { createATag, finishEvent, tag } from "react-nostr";
 
 type Props = {
   bounty: Event;
@@ -43,23 +43,13 @@ export default function ApplyButton({ bounty }: Props) {
   };
   const { publishEvent, status } = usePublishEvent(params);
 
-  async function signEvent(event: Event) {
-    // TODO: handle error, allow user to pass function to handle error
-    if (seckey) {
-      event.sig = getSignature(event, seckey);
-      return event;
-    }
-    event = (await nostr.signEvent(event)) as Event;
-    return event;
-  }
-
   async function handleApply(
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
   ) {
     e.preventDefault();
     if (!pubkey) return;
 
-    const dTagValue = nq.tag("d", bounty);
+    const dTagValue = tag("d", bounty);
     if (!dTagValue) return;
 
     const aTagParams: ATagParams = {
@@ -68,7 +58,7 @@ export default function ApplyButton({ bounty }: Props) {
       dTagValue,
     };
 
-    const aTag = nq.createATag(aTagParams);
+    const aTag = createATag(aTagParams);
 
     const recommendedRelay = pubRelays[0];
 
@@ -80,18 +70,13 @@ export default function ApplyButton({ bounty }: Props) {
       ["r", JSON.stringify(bounty)],
     ];
 
-    let event: Event = {
+    const t: EventTemplate = {
       kind: 8050,
       tags: tags,
       content: message,
       created_at: Math.floor(Date.now() / 1000),
-      pubkey: pubkey,
-      id: "",
-      sig: "",
     };
-    event.id = getEventHash(event);
-    // event = (await nostr.signEvent(event)) as Event;
-    event = await signEvent(event);
+    const event = await finishEvent(t, seckey)
     const onSeen = (event: Event) => {
       addAppEvent(bounty.id, event);
       addProfileBountyMap(pubkey, bounty.id, event);
@@ -139,7 +124,7 @@ export default function ApplyButton({ bounty }: Props) {
               Reward:
               <span className="flex items-center text-base font-semibold text-orange-500 dark:text-orange-400">
                 <SatoshiV2Icon className="h-5 w-5" />
-                {Number(nq.tag("reward", bounty)).toLocaleString()}
+                {Number(tag("reward", bounty)).toLocaleString()}
               </span>
             </Label>
             <Label htmlFor="message" className="text-left">

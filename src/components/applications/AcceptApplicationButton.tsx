@@ -1,5 +1,4 @@
 import useAuth from "~/hooks/useAuth";
-import nq from "~/nostr-query";
 import { revalidateCachedTag } from "~/nostr-query/server";
 import { type UsePublishEventParams } from "~/nostr-query/types";
 import usePublishEvent from "~/nostr-query/usePublishEvent";
@@ -7,6 +6,7 @@ import useEventStore from "~/store/event-store";
 import { useRelayStore } from "~/store/relay-store";
 import { Check } from "lucide-react";
 import { type EventTemplate, type Event } from "nostr-tools";
+import { tag, allTags, finishEvent } from "react-nostr";
 
 import { Button } from "../ui/button";
 
@@ -47,11 +47,11 @@ export default function AcceptApplicationButton({
       return;
     }
 
-    const identifier = nq.tag("d", bountyEvent);
-    const title = nq.tag("title", bountyEvent);
-    const reward = nq.tag("reward", bountyEvent);
-    const currency = nq.tag("c", bountyEvent);
-    const tTags = nq.tags("t", bountyEvent);
+    const identifier = tag("d", bountyEvent);
+    const title = tag("title", bountyEvent);
+    const reward = tag("reward", bountyEvent);
+    const currency = tag("c", bountyEvent);
+    const tTags = allTags("t", bountyEvent);
 
     if (!identifier || !title || !reward || !currency) {
       return;
@@ -93,7 +93,7 @@ export default function AcceptApplicationButton({
     // event.id = getEventHash(event);
     // event = (await nostr.signEvent(event)) as Event;
 
-    const event = await nq.finishEvent(eventTemplate, seckey);
+    const event = await finishEvent(eventTemplate, seckey);
 
     const onSeen = (event: Event) => {
       if (openBountyEvents.length > 0) {
@@ -110,7 +110,7 @@ export default function AcceptApplicationButton({
       revalidateCachedTag("open-bounties");
       revalidateCachedTag(`posted-bounties-${pubkey}`);
       revalidateCachedTag(`assigned-bounties-${applicationEvent.pubkey}`);
-      const dTagValue = nq.tag("d", bountyEvent);
+      const dTagValue = tag("d", bountyEvent);
       const bountyPubkey = bountyEvent.pubkey;
       revalidateCachedTag(`${dTagValue}-${bountyPubkey}`);
     };

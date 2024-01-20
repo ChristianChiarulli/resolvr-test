@@ -6,7 +6,6 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import useAuth from "~/hooks/useAuth";
-import nq from "~/nostr-query";
 import { revalidateCachedTag } from "~/nostr-query/server";
 import { type UsePublishEventParams } from "~/nostr-query/types";
 import usePublishEvent from "~/nostr-query/usePublishEvent";
@@ -17,6 +16,7 @@ import { useRouter } from "next/navigation";
 import { type Event, type EventTemplate } from "nostr-tools";
 
 import { useToast } from "../ui/use-toast";
+import { finishEvent } from "react-nostr";
 
 type Props = {
   bounty: Event;
@@ -24,7 +24,7 @@ type Props = {
 
 export default function BountyMenu({ bounty }: Props) {
   const { toast } = useToast();
-  const { pubkey } = useAuth();
+  const { pubkey, seckey } = useAuth();
   const { pubRelays } = useRelayStore();
   const {
     openBountyEvents,
@@ -52,7 +52,7 @@ export default function BountyMenu({ bounty }: Props) {
       created_at: Math.floor(Date.now() / 1000),
     };
 
-    const event = await nq.finishEvent(eventTemplate);
+    const event = await finishEvent(eventTemplate, seckey);
 
     const onSeen = (_: Event) => {
       if (openBountyEvents.length > 0) {

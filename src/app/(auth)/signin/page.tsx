@@ -61,9 +61,12 @@ export default function UserAuthForm() {
     setIsLoading(true);
     if (typeof nostr !== "undefined") {
       const publicKey: string = await nostr.getPublicKey();
+
+      console.log("publicKey: ", publicKey);
+
       await signIn("credentials", {
         publicKey: publicKey,
-        secretKey: "",
+        secretKey: new Uint8Array(0),
         redirect: true,
         callbackUrl: "/",
       });
@@ -76,7 +79,7 @@ export default function UserAuthForm() {
     setIsLoading(true);
     const { npub, nsec } = values;
     const publicKey = nip19.decode(npub).data as string;
-    const secretKey = nip19.decode(nsec).data as string;
+    const secretKey = nip19.decode(nsec).data as Uint8Array;
 
     await signIn("credentials", {
       publicKey,

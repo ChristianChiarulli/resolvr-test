@@ -6,7 +6,6 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import useAuth from "~/hooks/useAuth";
-import nq from "~/nostr-query";
 import { type UsePublishEventParams } from "~/nostr-query/types";
 import usePublishEvent from "~/nostr-query/usePublishEvent";
 import useEventStore from "~/store/event-store";
@@ -15,6 +14,7 @@ import { MoreVertical } from "lucide-react";
 import { type Event, type EventTemplate } from "nostr-tools";
 
 import { useToast } from "../ui/use-toast";
+import { finishEvent } from "react-nostr";
 
 type Props = {
   applicantEvent: Event;
@@ -23,7 +23,7 @@ type Props = {
 
 export default function ApplicantMenu({ applicantEvent, bountyEvent }: Props) {
   const { toast } = useToast();
-  const { pubkey } = useAuth();
+  const { pubkey, seckey } = useAuth();
   const { pubRelays } = useRelayStore();
   const { setAppEvents, appEventMap, removeProfileBountyMap } = useEventStore();
 
@@ -45,7 +45,7 @@ export default function ApplicantMenu({ applicantEvent, bountyEvent }: Props) {
       created_at: Math.floor(Date.now() / 1000),
     };
 
-    const event = await nq.finishEvent(eventTemplate);
+    const event = await finishEvent(eventTemplate, seckey);
 
     const onSeen = (_: Event) => {
       setAppEvents(

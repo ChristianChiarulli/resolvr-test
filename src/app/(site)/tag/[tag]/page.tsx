@@ -1,8 +1,7 @@
-import BountyFilter from "~/components/bounty-feed/BountyFilter";
 import BountyTags from "~/components/bounty-feed/BountyTags";
-import TaggedBounties from "~/components/bounty-feed/TaggedBounties";
 import { notFound } from "next/navigation";
 import { type Filter } from "nostr-tools";
+import BountyFeed from "~/components/bounty-feed/BountyFeed";
 
 export default async function TagPage({
   params,
@@ -37,7 +36,7 @@ export default async function TagPage({
         </div>
       </div>
 
-      <TaggedBounties filter={filter} tag={tag} />
+      <BountyFeed filter={filter} tag={tag} eventKey={`bounty-feed-${tag}`} />
     </div>
   );
 }

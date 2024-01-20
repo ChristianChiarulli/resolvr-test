@@ -1,6 +1,5 @@
 import useAuth from "~/hooks/useAuth";
 import { cn, fromNow } from "~/lib/utils";
-import nq from "~/nostr-query";
 import { BookOpen, LockIcon, MessagesSquare, Users } from "lucide-react";
 import Link from "next/link";
 import { type Event } from "nostr-tools";
@@ -9,6 +8,7 @@ import ApplicantFeed from "../applications/ApplicantFeed";
 import ApplicationCount from "../applications/ApplicationCount";
 import BountyDetails from "./BountyDetails";
 import Discussion from "./Discussion";
+import { tag } from "react-nostr";
 
 type BountyTabsProps = {
   bounty: Event | undefined;
@@ -81,7 +81,7 @@ function DiscussionTab({ selectedTab, bounty }: TabProps) {
 
   if (
     !pubkey ||
-    (pubkey !== bounty?.pubkey && pubkey !== nq.tag("p", bounty))
+    (pubkey !== bounty?.pubkey && pubkey !== tag("p", bounty))
   ) {
     return (
       <span className="group inline-flex cursor-not-allowed items-center border-b border-transparent px-1 py-4 text-sm font-medium text-muted-foreground">
@@ -169,7 +169,7 @@ export default function BountyTabs({ bounty, selectedTab }: BountyTabsProps) {
           {bounty && (
             <Discussion
               bounty={bounty}
-              applicantPubkey={nq.tag("p", bounty)!}
+              applicantPubkey={tag("p", bounty)!}
             />
           )}
         </>

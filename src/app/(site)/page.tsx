@@ -1,15 +1,13 @@
-import AssignedBounties from "~/components/bounty-feed/AssignedBounties";
+import BountyFeed from "~/components/bounty-feed/BountyFeed";
 import BountyTags from "~/components/bounty-feed/BountyTags";
-import OpenBounties from "~/components/bounty-feed/OpenBounties";
-import PostedBounties from "~/components/bounty-feed/PostedBounties";
 import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
-import nq from "~/nostr-query";
-import { type ListEventsParams } from "~/nostr-query/types";
+import { querySync } from "~/server/nostr";
 import { type UserWithKeys } from "~/types";
 import { getServerSession } from "next-auth";
 import { unstable_cache } from "next/cache";
 import Link from "next/link";
 import { type Event, type Filter } from "nostr-tools";
+import { type RelayUrl } from "react-nostr";
 
 import { authOptions } from "../api/auth/[...nextauth]/auth";
 
@@ -49,11 +47,6 @@ export default async function HomePage({
     filter["#p"] = [publicKey];
   }
 
-  const params: ListEventsParams = {
-    filter,
-    relays: ["wss://nos.lol", "wss://relay.damus.io"],
-  };
-
   let cacheTags: string[] = [];
 
   if (selectedTab === "open") {
@@ -67,38 +60,18 @@ export default async function HomePage({
   }
 
   const getCachedEvents = unstable_cache(
-    async (params: ListEventsParams) => {
+    async (relayUrls: RelayUrl[], filter: Filter) => {
       console.log("CACHING BOUNTY EVENTS");
-      const initialBountyEvents: Event[] = (await nq.list(params))!;
+      const initialBountyEvents: Event[] = await querySync(relayUrls, filter);
       return initialBountyEvents;
     },
     undefined,
     { tags: cacheTags, revalidate: 60 },
   );
 
-  let initialBountyEvents = await getCachedEvents(params);
+  const relayUrls: RelayUrl[] = ["wss://nos.lol", "wss://relay.damus.io"];
 
-  const pubkeys = initialBountyEvents.map((event) => event.pubkey);
-
-  const profiles: Event[] = [];
-
-  for (const pubkey of pubkeys) {
-    const getCachedProfile = unstable_cache(
-      async (pubkey: string) => {
-        const profile = await nq.fetchProfile({
-          pubkey,
-          relays: ["wss://nos.lol", "wss://relay.damus.io"],
-        });
-        return profile;
-      },
-      undefined,
-      { tags: [pubkey], revalidate: 60 },
-    );
-    const profile = await getCachedProfile(pubkey);
-    if (profile) {
-      profiles.push(profile);
-    }
-  }
+  let initialBountyEvents = await getCachedEvents(relayUrls, filter);
 
   // HACK: this is a workaround for dealing with passing symbols
   initialBountyEvents = JSON.parse(
@@ -143,27 +116,11 @@ export default async function HomePage({
         </div>
       )}
 
-      {selectedTab === "open" && (
-        <OpenBounties
-          initialBounties={initialBountyEvents}
-          filter={filter}
-          initialProfiles={profiles}
-        />
-      )}
-      {selectedTab === "posted" && (
-        <PostedBounties
-          initialBounties={initialBountyEvents}
-          filter={filter}
-          initialProfiles={profiles}
-        />
-      )}
-      {selectedTab === "assigned" && (
-        <AssignedBounties
-          initialBounties={initialBountyEvents}
-          filter={filter}
-          initialProfiles={profiles}
-        />
-      )}
+      <BountyFeed
+        initialBounties={initialBountyEvents}
+        filter={filter}
+        eventKey={selectedTab}
+      />
     </div>
   );
 }

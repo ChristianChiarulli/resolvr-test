@@ -139,27 +139,6 @@ const publish = async ({
   return publishedEvent;
 };
 
-// gets the first value of a tag
-function tag(key: string, event: Event | undefined) {
-  if (!event) {
-    return undefined;
-  }
-  const array = event.tags;
-  if (!array) {
-    return undefined;
-  }
-  const item = array.find((element) => element[0] === key);
-  return item ? item[1] : undefined;
-}
-
-function tags(key: string, event: Event): string[] {
-  return event.tags
-    .filter(
-      (innerArray) => innerArray[0] === key && innerArray[1] !== undefined,
-    )
-    .map((innerArray) => innerArray[1]!);
-}
-
 function constructTagsByKey(
   key: string,
   values: string[],
@@ -179,64 +158,6 @@ const shortNpub = (pubkey: string | undefined, length = 4 as number) => {
     `npub...${pubkey.substring(pubkey.length - length)}`
   );
 };
-
-const createNaddr = (
-  event: Event | undefined,
-  relays: string[] | undefined = undefined,
-) => {
-  const identifier = nq.tag("d", event);
-  if (!identifier) {
-    return null;
-  }
-  if (!event) {
-    return null;
-  }
-
-  const addressPointer: AddressPointer = {
-    identifier: identifier,
-    pubkey: event.pubkey,
-    kind: event.kind,
-    relays,
-  };
-
-  return nip19.naddrEncode(addressPointer);
-};
-
-const createATag = ({ kind, pubkey, dTagValue }: ATagParams) => {
-  return `${kind}:${pubkey}:${dTagValue}`;
-};
-
-async function finishEvent(
-  t: EventTemplate,
-  secretKey?: string,
-  onErr?: (err: Error) => void,
-) {
-  let event = t as Event;
-  if (secretKey) {
-    event.pubkey = getPublicKey(secretKey);
-  } else {
-    event.pubkey = await nostr.getPublicKey();
-  }
-
-  event.id = getEventHash(event);
-
-  if (secretKey) {
-    event.sig = getSignature(event, secretKey);
-    return event;
-  }
-  try {
-    if (nostr) {
-      event = (await nostr.signEvent(event)) as Event;
-      return event;
-    } else {
-      console.error("nostr not defined");
-      throw new Error("nostr not defined");
-    }
-  } catch (err) {
-    if (onErr) onErr(err as Error);
-    return undefined;
-  }
-}
 
 // Zaps
 async function getZapEndpoint(profileEvent: Event) {
@@ -384,12 +305,6 @@ const zap = async ({
   }
 };
 
-function findFirstGithubITag(
-  tags: (string | undefined)[][],
-): (string | undefined)[] | undefined {
-  return tags.find((tag) => tag[0] === "i" && tag[1]?.startsWith("github"));
-}
-
 const encryptMessage = async ({
   recipientPublicKey,
   message,
@@ -415,17 +330,11 @@ const nq = {
   fetchProfile,
   profileContent,
   publish,
-  tag,
-  tags,
   constructTagsByKey,
   shortNpub,
-  createNaddr,
-  createATag,
-  finishEvent,
   zapRequest,
   zap,
   payInvoice,
-  findFirstGithubITag,
   encryptMessage,
 };
 

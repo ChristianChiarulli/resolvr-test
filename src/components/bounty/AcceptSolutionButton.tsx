@@ -1,7 +1,6 @@
 "use client";
 
 import useAuth from "~/hooks/useAuth";
-import nq from "~/nostr-query";
 import { type UseZapParams } from "~/nostr-query/types";
 import useZap from "~/nostr-query/useZap";
 import useEventStore from "~/store/event-store";
@@ -11,6 +10,7 @@ import { type Event } from "nostr-tools";
 
 import { Button } from "../ui/button";
 import { useToast } from "../ui/use-toast";
+import { tag } from "react-nostr";
 
 type Props = {
   bounty: Event;
@@ -79,7 +79,7 @@ export default function AcceptSolutionButton({
     }
 
     const eventId = bounty.id;
-    const amount = nq.tag("reward", bounty);
+    const amount = tag("reward", bounty);
     const content = "";
     await zap(
       recipientProfile,

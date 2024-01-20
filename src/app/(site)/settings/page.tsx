@@ -18,7 +18,6 @@ import { Separator } from "~/components/ui/separator";
 import { Textarea } from "~/components/ui/textarea";
 import { useToast } from "~/components/ui/use-toast";
 import useAuth from "~/hooks/useAuth";
-import nq from "~/nostr-query";
 import { validateGithub } from "~/nostr-query/server";
 import {
   type UseProfileEventParams,
@@ -32,6 +31,7 @@ import Link from "next/link";
 import { nip19, type Event, type EventTemplate } from "nostr-tools";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import { finishEvent, profileContent } from "react-nostr";
 
 const profileFormSchema = z.object({
   username: z
@@ -84,8 +84,8 @@ export default function SettingsPage() {
   const { reset } = form;
 
   useEffect(() => {
-    const profileContent = nq.profileContent(profileMap[pubkey!]);
-    const gistId = nq.findFirstGithubITag(profileMap[pubkey!]?.tags ?? [])?.[2];
+    const profileContent = profileContent(profileMap[pubkey!]);
+    const gistId = identityTag("github", profileMap[pubkey!]?.tags ?? [])?.[2];
     if (profileContent) {
       reset({
         username: profileContent.name,
@@ -115,7 +115,7 @@ export default function SettingsPage() {
 
     if (!pubkey) return;
 
-    const profile = nq.profileContent(profileMap[pubkey]);
+    const profile = profileContent(profileMap[pubkey]);
     let tags = profileMap[pubkey]?.tags;
 
     if (!tags) {
@@ -155,7 +155,7 @@ export default function SettingsPage() {
       created_at: Math.floor(Date.now() / 1000),
     };
 
-    const event = await nq.finishEvent(eventTemplate);
+    const event = await finishEvent(eventTemplate);
 
     const onSeen = (_: Event) => {
       toast({

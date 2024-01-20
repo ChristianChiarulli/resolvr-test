@@ -1,11 +1,12 @@
+import { type RelayUrl } from "react-nostr";
 import { create } from "zustand";
 import { createJSONStorage, devtools, persist } from "zustand/middleware";
 
 interface RelayState {
-  subRelays: string[];
-  pubRelays: string[];
-  setSubscribeRelays: (relays: string[]) => void;
-  setPublishRelays: (relays: string[]) => void;
+  subRelays: RelayUrl[];
+  pubRelays: RelayUrl[];
+  setSubscribeRelays: (relays: RelayUrl[]) => void;
+  setPublishRelays: (relays: RelayUrl[]) => void;
 }
 
 export const useRelayStore = create<RelayState>()(

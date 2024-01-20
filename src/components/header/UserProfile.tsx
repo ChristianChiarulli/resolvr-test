@@ -1,21 +1,19 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import nq from "~/nostr-query";
 import { type UseProfileEventParams } from "~/nostr-query/types";
 import useProfileEvent from "~/nostr-query/useProfileEvent";
 import useEventStore from "~/store/event-store";
 import { useRelayStore } from "~/store/relay-store";
-import { type Event } from "nostr-tools";
 
 import UserMenu from "./UserMenu";
+import { profileContent } from "react-nostr";
 
 type Props = {
   pubkey: string;
-  initialProfile?: Event | undefined | null;
 };
 
-export default function UserProfile({ pubkey, initialProfile }: Props) {
+export default function UserProfile({ pubkey }: Props) {
   const BOT_AVATAR_ENDPOINT = `https://api.dicebear.com/7.x/bottts-neutral/svg?seed=${pubkey}`;
   const { profileMap, addProfile } = useEventStore();
   const { subRelays } = useRelayStore();
@@ -35,7 +33,7 @@ export default function UserProfile({ pubkey, initialProfile }: Props) {
     <UserMenu>
       <img
         src={
-          nq.profileContent(profileMap[pubkey] ?? initialProfile).picture ??
+          profileContent(profileMap[pubkey]).picture ??
           BOT_AVATAR_ENDPOINT
         }
         alt=""

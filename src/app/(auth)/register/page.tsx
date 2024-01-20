@@ -14,7 +14,7 @@ import {
 import { Input } from "~/components/ui/input";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
-import { generatePrivateKey, getPublicKey, nip19 } from "nostr-tools";
+import { generateSecretKey, getPublicKey, nip19 } from "nostr-tools";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
@@ -57,7 +57,7 @@ export default function RegisterForm() {
   const { reset } = form;
 
   useEffect(() => {
-    const secretKey = generatePrivateKey();
+    const secretKey = generateSecretKey();
     const publicKey = getPublicKey(secretKey);
     const nsec = nip19.nsecEncode(secretKey);
     const npub = nip19.npubEncode(publicKey);
@@ -72,7 +72,7 @@ export default function RegisterForm() {
     setIsLoading(true);
     const { npub, nsec } = values;
     const publicKey = nip19.decode(npub).data as string;
-    const secretKey = nip19.decode(nsec).data as string;
+    const secretKey = nip19.decode(nsec).data as Uint8Array;
 
     await signIn("credentials", {
       publicKey,
