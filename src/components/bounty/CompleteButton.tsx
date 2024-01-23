@@ -10,7 +10,7 @@ import usePublishEvent from "~/nostr-query/usePublishEvent";
 import useEventStore from "~/store/event-store";
 import { useRelayStore } from "~/store/relay-store";
 import { UserPlus2 } from "lucide-react";
-import { getEventHash, getSignature, type Event, EventTemplate } from "nostr-tools";
+import { getEventHash, type Event, EventTemplate } from "nostr-tools";
 
 import { Button } from "../ui/button";
 import {
@@ -71,7 +71,7 @@ export default function CompleteButton({ bounty }: Props) {
     ];
 
     const t: EventTemplate = {
-      kind: 8050,
+      kind: 30051,
       tags: tags,
       content: message,
       created_at: Math.floor(Date.now() / 1000),

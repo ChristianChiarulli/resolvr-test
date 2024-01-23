@@ -1,15 +1,15 @@
 import { SatoshiV2Icon } from "@bitcoin-design/bitcoin-icons-react/filled";
 import useAuth from "~/hooks/useAuth";
 import { type Event } from "nostr-tools";
+import { tag } from "react-nostr";
 
 import ApplyButton from "./ApplyButton";
 import BountyMenu from "./BountyMenu";
 import BountyStatusBadge from "./BountyStatusBadge";
 import Profile from "./Profile";
-import { tag } from "react-nostr";
 
 type Props = {
-  bounty: Event | undefined;
+  bounty: Event;
 };
 
 // TODO: skeleton loader for when bounty is undefined
@@ -17,7 +17,6 @@ export default function BountyMetadata({ bounty }: Props) {
   const { pubkey } = useAuth();
 
   const isLoggedInUserBounty = pubkey && bounty?.pubkey === pubkey;
-
   return (
     <>
       <div className="flex items-center justify-between">
@@ -33,8 +32,8 @@ export default function BountyMetadata({ bounty }: Props) {
       <div className="flex items-center justify-between gap-x-2">
         {bounty?.pubkey && <Profile pubkey={bounty?.pubkey} />}
         <div className="flex items-center gap-x-1.5">
-          {bounty && pubkey && <BountyMenu bounty={bounty} />}
           {bounty && !isLoggedInUserBounty && <ApplyButton bounty={bounty} />}
+          {bounty && pubkey && <BountyMenu bounty={bounty} />}
         </div>
       </div>
     </>

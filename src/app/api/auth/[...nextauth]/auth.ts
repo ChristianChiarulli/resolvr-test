@@ -20,8 +20,6 @@ export const authOptions: AuthOptions = {
       },
       async authorize(credentials, req) {
 
-        console.log("credentials", credentials);
-
         if (!credentials) {
           return null;
         }
@@ -36,8 +34,6 @@ export const authOptions: AuthOptions = {
             publicKey: credentials.publicKey,
             secretKey: "",
           };
-
-          console.log("user", user);
 
           return user;
         }

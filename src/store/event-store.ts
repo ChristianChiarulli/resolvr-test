@@ -3,6 +3,10 @@ import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 
 export interface EventState {
+
+  applicationCount: number;
+  setApplicationCount: (count: number) => void;
+
   openBountyEvents: Event[];
   addOpenBountyEvent: (event: Event) => void;
   setOpenBountyEvents: (events: Event[]) => void;
@@ -50,6 +54,10 @@ export interface EventState {
 
 const useEventStore = create<EventState>()(
   devtools((set) => ({
+
+    applicationCount: 0,
+    setApplicationCount: (count) => set({ applicationCount: count }),
+
     openBountyEvents: [],
     addOpenBountyEvent: (event) =>
       set((prev) => ({

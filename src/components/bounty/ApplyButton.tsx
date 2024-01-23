@@ -1,16 +1,19 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { SatoshiV2Icon } from "@bitcoin-design/bitcoin-icons-react/filled";
 import useAuth from "~/hooks/useAuth";
-import {
-  type ATagParams,
-  type UsePublishEventParams,
-} from "~/nostr-query/types";
-import usePublishEvent from "~/nostr-query/usePublishEvent";
-import useEventStore from "~/store/event-store";
+import { type ATagParams } from "~/nostr-query/types";
 import { useRelayStore } from "~/store/relay-store";
-import { UserPlus2 } from "lucide-react";
-import { type Event, type EventTemplate } from "nostr-tools";
+import { CheckSquare, Glasses, Lightbulb, UserPlus2 } from "lucide-react";
+import { type Event, type EventTemplate, type Filter } from "nostr-tools";
+import {
+  createATag,
+  createIdentifier,
+  finishEvent,
+  tag,
+  usePublish,
+  useSubscribe,
+} from "react-nostr";
 
 import { Button } from "../ui/button";
 import {
@@ -23,25 +26,43 @@ import {
 } from "../ui/dialog";
 import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
-import { createATag, finishEvent, tag } from "react-nostr";
 
 type Props = {
   bounty: Event;
 };
 
 export default function ApplyButton({ bounty }: Props) {
-  const { pubRelays } = useRelayStore();
+  const { subRelays, pubRelays } = useRelayStore();
   const { pubkey, seckey } = useAuth();
   const [message, setMessage] = useState("");
   const [open, setOpen] = useState(false);
 
-  const { addAppEvent, profileBountyMap, addProfileBountyMap } =
-    useEventStore();
+  const aTagParams: ATagParams = useMemo(
+    () => ({
+      kind: "30050",
+      pubkey: bounty.pubkey,
+      dTagValue: tag("d", bounty) ?? "",
+    }),
+    [bounty],
+  );
 
-  const params: UsePublishEventParams = {
-    relays: pubRelays,
+  const aTag = useMemo(() => createATag(aTagParams), [aTagParams]);
+
+  const filter: Filter = {
+    kinds: [30051],
+    limit: 1,
+    "#a": [aTag],
   };
-  const { publishEvent, status } = usePublishEvent(params);
+
+  const { events } = useSubscribe({
+    filter,
+    eventKey: `applied-${aTag}`,
+    relays: subRelays,
+  });
+
+  const { publish, status, addEvent, removeEvent } = usePublish({
+    relays: pubRelays,
+  });
 
   async function handleApply(
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
@@ -64,56 +85,136 @@ export default function ApplyButton({ bounty }: Props) {
 
     if (!recommendedRelay) return;
 
+    const identifier = createIdentifier(bounty.id, pubkey);
+
     const tags = [
       ["a", aTag, recommendedRelay],
       ["p", bounty.pubkey],
       ["r", JSON.stringify(bounty)],
+      ["s", "applied"],
+      ["d", identifier],
     ];
 
     const t: EventTemplate = {
-      kind: 8050,
+      kind: 30051,
+      tags: tags,
+      content: "",
+      created_at: Math.floor(Date.now() / 1000),
+    };
+    const event = await finishEvent(t, seckey);
+    const onSuccess = (_: Event) => {
+      if (event) {
+        void addEvent(aTag, event);
+        void addEvent(`applied-${aTag}`, event);
+      }
+
+      setOpen(false);
+    };
+
+    await publish(event, onSuccess);
+  }
+
+  async function handleSubmitSolution(
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+    currentApplicationEvent: Event | undefined,
+  ) {
+    e.preventDefault();
+    if (!pubkey) return;
+
+    const dTagValue = tag("d", bounty);
+    if (!dTagValue) return;
+
+    const aTagParams: ATagParams = {
+      kind: "30050",
+      pubkey: bounty.pubkey,
+      dTagValue,
+    };
+
+    const aTag = createATag(aTagParams);
+
+    const recommendedRelay = pubRelays[0];
+
+    if (!recommendedRelay) return;
+
+    const identifier = createIdentifier(bounty.id, pubkey);
+
+    const tags = [
+      ["a", aTag, recommendedRelay],
+      ["p", bounty.pubkey],
+      ["r", JSON.stringify(bounty)],
+      ["s", "submitted"],
+      ["d", identifier],
+    ];
+
+    const t: EventTemplate = {
+      kind: 30051,
       tags: tags,
       content: message,
       created_at: Math.floor(Date.now() / 1000),
     };
-    const event = await finishEvent(t, seckey)
-    const onSeen = (event: Event) => {
-      addAppEvent(bounty.id, event);
-      addProfileBountyMap(pubkey, bounty.id, event);
+    const event = await finishEvent(t, seckey);
+    const onSuccess = (_: Event) => {
+      if (event) {
+        if (currentApplicationEvent) {
+          void removeEvent(
+            [aTag, `applied-${aTag}`],
+            currentApplicationEvent.id,
+          );
+        }
+        void addEvent(aTag, event);
+        void addEvent(`applied-${aTag}`, event);
+      }
+
       setOpen(false);
     };
 
-    await publishEvent(event, onSeen);
+    await publish(event, onSuccess);
   }
 
   if (!pubkey) return null;
 
-  // TODO: profile to app event map is stupid
-
   return (
     <>
-      {profileBountyMap[pubkey]?.[bounty.id] && (
-        <span className="inline-flex h-9 items-center justify-center whitespace-nowrap rounded-md px-3 text-sm font-medium text-green-500 dark:text-green-400">
-          Applied
-        </span>
-      )} 
-      {!profileBountyMap[pubkey]?.[bounty.id] && (
+      {events[0] && tag("s", events[0]) === "applied" && (
         <Button
           size="sm"
           disabled={status === "pending"}
           onClick={() => setOpen(true)}
           className="flex text-sm"
         >
+          <CheckSquare className="mr-1 h-4 w-4" />
+          Submit Solution
+        </Button>
+      )}
+      {events[0] && tag("s", events[0]) === "submitted" && (
+        <Button
+          size="sm"
+          disabled={status === "pending"}
+          onClick={() => setOpen(true)}
+          className="flex text-sm"
+        >
+          <Lightbulb className="mr-1 h-4 w-4" />
+          Update Solution
+        </Button>
+      )}
+      {!events[0] && (
+        <Button
+          size="sm"
+          disabled={status === "pending"}
+          onClick={handleApply}
+          className="flex text-sm"
+        >
           <UserPlus2 className="mr-1 h-4 w-4" />
-          Apply
+          I'm Interested
         </Button>
       )}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Bounty Application</DialogTitle>
+            <DialogTitle>Submit Solution</DialogTitle>
             <DialogDescription>
-              You're application will be sent to the bounty creator for review.
+              You're solution will be made public for review. Include any
+              relevant explanation or links to your work.
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-y-2">
@@ -137,7 +238,11 @@ export default function ApplyButton({ bounty }: Props) {
             />
           </div>
           <DialogFooter>
-            <Button onClick={handleApply}>Apply</Button>
+            <Button
+              onClick={(e) => handleSubmitSolution(e, events[0] ?? undefined)}
+            >
+              Submit
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

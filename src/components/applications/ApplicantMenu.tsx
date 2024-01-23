@@ -1,3 +1,5 @@
+import { useMemo } from "react";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -6,15 +8,17 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import useAuth from "~/hooks/useAuth";
-import { type UsePublishEventParams } from "~/nostr-query/types";
-import usePublishEvent from "~/nostr-query/usePublishEvent";
-import useEventStore from "~/store/event-store";
 import { useRelayStore } from "~/store/relay-store";
 import { MoreVertical } from "lucide-react";
 import { type Event, type EventTemplate } from "nostr-tools";
-
-import { useToast } from "../ui/use-toast";
-import { finishEvent } from "react-nostr";
+import {
+  createATag,
+  finishEvent,
+  tag,
+  usePublish,
+  type ATagParams,
+} from "react-nostr";
+import { toast } from "sonner";
 
 type Props = {
   applicantEvent: Event;
@@ -22,16 +26,23 @@ type Props = {
 };
 
 export default function ApplicantMenu({ applicantEvent, bountyEvent }: Props) {
-  const { toast } = useToast();
   const { pubkey, seckey } = useAuth();
   const { pubRelays } = useRelayStore();
-  const { setAppEvents, appEventMap, removeProfileBountyMap } = useEventStore();
 
-  const params: UsePublishEventParams = {
+  const { publish, status, removeEvent } = usePublish({
     relays: pubRelays,
-  };
+  });
 
-  const { publishEvent, status } = usePublishEvent(params);
+  const aTagParams: ATagParams = useMemo(
+    () => ({
+      kind: "30050",
+      pubkey: bountyEvent.pubkey,
+      dTagValue: tag("d", bountyEvent) ?? "",
+    }),
+    [bountyEvent],
+  );
+
+  const aTag = useMemo(() => createATag(aTagParams), [aTagParams]);
 
   async function handleDelete() {
     if (!pubkey) return;
@@ -48,21 +59,13 @@ export default function ApplicantMenu({ applicantEvent, bountyEvent }: Props) {
     const event = await finishEvent(eventTemplate, seckey);
 
     const onSeen = (_: Event) => {
-      setAppEvents(
-        bountyEvent.id,
-        appEventMap[bountyEvent.id]!.filter((e) => e.id !== applicantEvent.id),
-      );
-      removeProfileBountyMap(applicantEvent.pubkey, bountyEvent.id);
-
-      // TODO: if I ever get these on the server make sure to invalidate
-
-      toast({
-        title: "Application deleted",
+      void removeEvent([aTag, `applied-${aTag}`], applicantEvent.id);
+      toast("Application deleted", {
         description: "Your application has been deleted.",
       });
     };
 
-    await publishEvent(event, onSeen);
+    await publish(event, onSeen);
   }
 
   return (

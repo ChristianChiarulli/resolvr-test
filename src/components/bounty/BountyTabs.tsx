@@ -1,23 +1,29 @@
-import useAuth from "~/hooks/useAuth";
+import { useMemo } from "react";
+
 import { cn, fromNow } from "~/lib/utils";
-import { BookOpen, LockIcon, MessagesSquare, Users } from "lucide-react";
+import { useRelayStore } from "~/store/relay-store";
+import { BookOpen, Users } from "lucide-react";
 import Link from "next/link";
-import { type Event } from "nostr-tools";
+import { type Event, type Filter } from "nostr-tools";
+import { createATag, tag, useSubscribe, type ATagParams } from "react-nostr";
+import { toast } from "sonner";
 
 import ApplicantFeed from "../applications/ApplicantFeed";
-import ApplicationCount from "../applications/ApplicationCount";
 import BountyDetails from "./BountyDetails";
-import Discussion from "./Discussion";
-import { tag } from "react-nostr";
 
 type BountyTabsProps = {
-  bounty: Event | undefined;
+  bounty: Event;
   selectedTab: string;
 };
 
 type TabProps = {
   selectedTab: string;
-  bounty: Event | undefined;
+  bounty: Event;
+};
+
+type ApplicationTabProps = {
+  selectedTab: string;
+  count: number | undefined | null;
 };
 
 function DetailTab({ selectedTab }: TabProps) {
@@ -46,7 +52,7 @@ function DetailTab({ selectedTab }: TabProps) {
   );
 }
 
-function ApplicationTab({ selectedTab, bounty }: TabProps) {
+function ApplicationTab({ selectedTab, count }: ApplicationTabProps) {
   return (
     <Link
       replace={true}
@@ -66,56 +72,48 @@ function ApplicationTab({ selectedTab, bounty }: TabProps) {
           "-ml-0.5 mr-2 h-5 w-5",
         )}
       />
-      <span className="flex gap-x-1">
-        {bounty && <ApplicationCount bounty={bounty} />}
-        Applications
-      </span>
-    </Link>
-  );
-}
-
-// to show for logged in user bounty must have p tag, and you must be signed in
-// to show for applicant bounty must have p tag, and it must match your logged in pubkey
-function DiscussionTab({ selectedTab, bounty }: TabProps) {
-  const { pubkey } = useAuth();
-
-  if (
-    !pubkey ||
-    (pubkey !== bounty?.pubkey && pubkey !== tag("p", bounty))
-  ) {
-    return (
-      <span className="group inline-flex cursor-not-allowed items-center border-b border-transparent px-1 py-4 text-sm font-medium text-muted-foreground">
-        <LockIcon className="-ml-0.5 mr-2 h-5 w-5 text-muted-foreground" />
-        <span>Discussion</span>
-      </span>
-    );
-  }
-
-  return (
-    <Link
-      replace={true}
-      href={"?tab=discussion"}
-      className={cn(
-        selectedTab === "discussion"
-          ? "border-indigo-600 text-indigo-600 dark:border-indigo-500 dark:text-indigo-500"
-          : "border-transparent text-muted-foreground hover:border-foreground hover:text-foreground",
-        "group inline-flex items-center border-b px-1 py-4 text-sm font-medium",
-      )}
-    >
-      <MessagesSquare
-        className={cn(
-          selectedTab === "discussion"
-            ? "text-indigo-600 dark:text-indigo-500"
-            : "text-muted-foreground group-hover:text-foreground",
-          "-ml-0.5 mr-2 h-5 w-5",
-        )}
-      />
-      <span>Discussion</span>
+      <span className="flex gap-x-1">{count ?? 0} Applications</span>
     </Link>
   );
 }
 
 export default function BountyTabs({ bounty, selectedTab }: BountyTabsProps) {
+  const aTagParams: ATagParams = useMemo(
+    () => ({
+      kind: "30050",
+      pubkey: bounty.pubkey,
+      dTagValue: tag("d", bounty) ?? "",
+    }),
+    [bounty],
+  );
+
+  const { subRelays } = useRelayStore();
+
+  const aTag = useMemo(() => createATag(aTagParams), [aTagParams]);
+
+  const filter: Filter = {
+    kinds: [30051],
+    limit: 20,
+    "#a": [aTag],
+  };
+
+  const onEventsNotFound = () => {
+    toast("No applicants found", {
+      description: "There are no applicants to display at this time.",
+      action: {
+        label: "Dismiss",
+        onClick: () => console.log("Dismissed toast"),
+      },
+    });
+  };
+
+  const { events, status, loading, loadOlderEvents, noEvents } = useSubscribe({
+    eventKey: aTag,
+    filter: filter,
+    relays: subRelays,
+    onEventsNotFound: onEventsNotFound,
+  });
+
   return (
     <div>
       <div className="w-full sm:block">
@@ -125,8 +123,7 @@ export default function BountyTabs({ bounty, selectedTab }: BountyTabsProps) {
             aria-label="Tabs"
           >
             <DetailTab selectedTab={selectedTab} bounty={bounty} />
-            <ApplicationTab selectedTab={selectedTab} bounty={bounty} />
-            <DiscussionTab selectedTab={selectedTab} bounty={bounty} />
+            <ApplicationTab selectedTab={selectedTab} count={events?.length} />
           </nav>
         </div>
       </div>
@@ -153,23 +150,15 @@ export default function BountyTabs({ bounty, selectedTab }: BountyTabsProps) {
               {fromNow(bounty?.created_at) ?? "unknown"}
             </span>
           </div>
-          {bounty && <ApplicantFeed bounty={bounty} />}
-        </>
-      )}
-      {selectedTab === "discussion" && (
-        <>
-          <div className="flex items-center justify-between">
-            <h4 className="scroll-m-20 py-4 text-xl font-semibold tracking-tight">
-              Discussion
-            </h4>
-            <span className="text-sm text-muted-foreground">
-              {fromNow(bounty?.created_at) ?? "unknown"}
-            </span>
-          </div>
           {bounty && (
-            <Discussion
+            <ApplicantFeed
               bounty={bounty}
-              applicantPubkey={tag("p", bounty)!}
+              applicationEvents={events}
+              eventKey={aTag}
+              loadOlderEvents={loadOlderEvents}
+              loading={loading}
+              noEvents={noEvents}
+              status={status}
             />
           )}
         </>

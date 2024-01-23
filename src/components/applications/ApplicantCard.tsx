@@ -1,21 +1,22 @@
 /* eslint-disable @typescript-eslint/prefer-nullish-coalescing */
 /* eslint-disable @next/next/no-img-element */
 
-import useAuth from "~/hooks/useAuth";
 import { BOT_AVATAR_ENDPOINT } from "~/lib/constants";
 import { fromNow } from "~/lib/utils";
-import { type UseProfileEventParams } from "~/nostr-query/types";
-import useProfileEvent from "~/nostr-query/useProfileEvent";
-import useEventStore from "~/store/event-store";
 import { useRelayStore } from "~/store/relay-store";
 import { type Event } from "nostr-tools";
-import { profileContent, shortNpub, tag } from "react-nostr";
+import {
+  profileContent,
+  shortNpub,
+  tag,
+  useBatchedEvents,
+  useBatchedProfiles,
+} from "react-nostr";
 
 import GithubBadge from "../profile/GithubBadge";
 import WebsiteBadge from "../profile/WebsiteBadge";
-import AcceptApplicationButton from "./AcceptApplicationButton";
+import AcceptSolutionButton from "./AcceptSolutionButton";
 import ApplicantMenu from "./ApplicantMenu";
-import RemoveApplicationButton from "./RemoveApplicationButton";
 
 type Props = {
   applicationEvent: Event;
@@ -27,20 +28,19 @@ export default function ApplicationCard({
   bountyEvent,
 }: Props) {
   const applicantPubkey = applicationEvent.pubkey;
-  const { profileMap, addProfile, zapRecieptMap } = useEventStore();
   const { subRelays } = useRelayStore();
-  const { pubkey } = useAuth();
+  // console.log("BountyEvent", bountyEvent);
 
-  const params: UseProfileEventParams = {
-    pubkey: applicantPubkey,
-    relays: subRelays,
-    shouldFetch: !profileMap[applicantPubkey],
-    onProfileEvent: (event) => {
-      addProfile(applicantPubkey, event);
-    },
-  };
+  const profileEvent = useBatchedProfiles(applicationEvent.pubkey, subRelays);
 
-  useProfileEvent(params);
+  const eventKey = `9735-${applicationEvent.id}`;
+
+  const events = useBatchedEvents(
+    9735,
+    applicationEvent.id,
+    eventKey,
+    subRelays,
+  );
 
   return (
     <li className="flex items-center gap-x-4 rounded-md border bg-secondary/50 p-4">
@@ -49,39 +49,38 @@ export default function ApplicationCard({
           <span className="flex items-center gap-x-2 text-sm font-light text-muted-foreground">
             <img
               src={
-                profileContent(profileMap[applicantPubkey]).picture ||
+                profileContent(profileEvent).picture ||
                 BOT_AVATAR_ENDPOINT + applicantPubkey
               }
               alt=""
               className="aspect-square w-8 rounded-full border border-border dark:border-border"
             />
 
-            {profileContent(profileMap[applicantPubkey]).name ||
-              shortNpub(applicantPubkey)}
+            {profileContent(profileEvent).name || shortNpub(applicantPubkey)}
           </span>
           <div className="flex items-center gap-x-1.5">
-            {pubkey === bountyEvent.pubkey &&
-              !tag("p", bountyEvent) &&
-              !zapRecieptMap[bountyEvent.id] && (
-                <AcceptApplicationButton
+            {profileEvent &&
+              // pubkey === bountyEvent.pubkey &&
+              (tag("s", bountyEvent) === "open" ||
+              tag("s", bountyEvent) === "complete") &&
+
+              (
+                // tag("s", applicationEvent) === "submitted" &&
+                // tag("p", bountyEvent) && (
+
+                <AcceptSolutionButton
                   applicationEvent={applicationEvent}
                   bountyEvent={bountyEvent}
+                  recipientMetadata={profileEvent}
                 />
               )}
-            {pubkey === bountyEvent.pubkey &&
-              tag("p", bountyEvent) === applicationEvent.pubkey &&
-              !zapRecieptMap[bountyEvent.id] && (
-                <RemoveApplicationButton
-                  applicationEvent={applicationEvent}
-                  bountyEvent={bountyEvent}
-                />
-              )}
-            {tag("p", bountyEvent) === applicationEvent.pubkey &&
-              zapRecieptMap[bountyEvent.id] && (
-                <span className="inline-flex h-9 items-center justify-center whitespace-nowrap rounded-md px-3 text-sm font-medium text-green-500 dark:text-green-400">
-                  Solution Accepted
-                </span>
-              )}
+
+            {events?.[0] && (
+              <span className="inline-flex h-9 items-center justify-center whitespace-nowrap rounded-md px-3 text-sm font-medium text-green-500 dark:text-green-400">
+                Paid
+              </span>
+            )}
+
             <ApplicantMenu
               applicantEvent={applicationEvent}
               bountyEvent={bountyEvent}

@@ -13,10 +13,10 @@ import {
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { signIn } from "next-auth/react";
+import Link from "next/link";
 import { nip19 } from "nostr-tools";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import Link from "next/link";
 
 const isValidNpub = (npub: string) => {
   try {
@@ -79,7 +79,11 @@ export default function UserAuthForm() {
     setIsLoading(true);
     const { npub, nsec } = values;
     const publicKey = nip19.decode(npub).data as string;
-    const secretKey = nip19.decode(nsec).data as Uint8Array;
+    const secretKeyUint8 = nip19.decode(nsec).data as Uint8Array;
+    const array = Array.from(secretKeyUint8);
+    const secretKey = JSON.stringify(array)
+
+    console.log("secretKeyStr: ", secretKey);
 
     await signIn("credentials", {
       publicKey,

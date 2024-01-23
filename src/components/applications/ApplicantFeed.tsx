@@ -1,86 +1,38 @@
-"use client";
+import { type Event } from "nostr-tools";
 
-import { useMemo } from "react";
-
-import { type ATagParams, type UseListEventsParams } from "~/nostr-query/types";
-import useListEvents from "~/nostr-query/useListEvents";
-import useEventStore from "~/store/event-store";
-import { useRelayStore } from "~/store/relay-store";
-import { type Event, type Filter } from "nostr-tools";
-
-import { ToastAction } from "../ui/toast";
-import { useToast } from "../ui/use-toast";
 import ApplicationCard from "./ApplicantCard";
 import ApplicationLoadButton from "./ApplicationLoadButton";
-import { createATag, tag } from "react-nostr";
 
 type Props = {
   bounty: Event;
+  applicationEvents: Event[];
+  eventKey: string;
+  loadOlderEvents: (eventKey: string, page: number) => Promise<void>;
+  loading: boolean;
+  noEvents: boolean;
+  status: string;
 };
 
-export default function ApplicationFeed({ bounty }: Props) {
-  const { subRelays } = useRelayStore();
-  const { appEventMap, setAppEvents, addProfileBountyMap } = useEventStore();
-
-  const { toast } = useToast();
-
-  const onEventsNotFound = () => {
-    toast({
-      title: "No applications found",
-      description: "There are no more applications to display at this time.",
-      action: (
-        <ToastAction onClick={addMorePosts} altText="Try again">
-          Try again
-        </ToastAction>
-      ),
-    });
-  };
-
-  const aTagParams: ATagParams = useMemo(
-    () => ({
-      kind: "30050",
-      pubkey: bounty.pubkey,
-      dTagValue: tag("d", bounty) ?? "",
-    }),
-    [bounty],
-  );
-
-  const aTag = useMemo(() => createATag(aTagParams), [aTagParams]);
-
-  const filter: Filter = {
-    kinds: [8050],
-    limit: 20,
-    "#a": [aTag],
-  };
-
-  const params: UseListEventsParams = {
-    filter: filter,
-    relays: subRelays,
-    initialEvents: appEventMap[bounty.id],
-    onEventsResolved: (events: Event[]) => {
-      setAppEvents(bounty.id, events);
-      if (events.length > 0) {
-        events.forEach((event) => {
-          addProfileBountyMap(event.pubkey, bounty.id, event);
-        });
-      }
-    },
-    onEventsNotFound: onEventsNotFound,
-  };
-
-  const { loading, loadOlderEvents } = useListEvents(params);
-
+export default function ApplicationFeed({
+  bounty,
+  applicationEvents,
+  eventKey,
+  loadOlderEvents,
+  loading,
+  noEvents,
+  status,
+}: Props) {
   async function addMorePosts(
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
   ) {
     e.preventDefault();
-    await loadOlderEvents(appEventMap[bounty.id], 1);
+    await loadOlderEvents(eventKey, 1);
   }
 
   return (
     <>
       <ul className="flex w-full flex-col gap-y-4">
-        {(appEventMap[bounty.id] ?? []).map((applicationEvent) => (
+        {(applicationEvents ?? []).map((applicationEvent) => (
           <ApplicationCard
             key={applicationEvent.id}
             bountyEvent={bounty}
@@ -88,11 +40,21 @@ export default function ApplicationFeed({ bounty }: Props) {
           />
         ))}
       </ul>
-      {appEventMap[bounty.id] && (
+      {noEvents && (
+        <div className="flex flex-col items-center justify-center">
+          <div className="text-lg font-medium text-gray-500">
+            No applicants found
+          </div>
+          <div className="text-sm text-gray-500">
+            There are no applicants to display at this time.
+          </div>
+        </div>
+      )}
+      {applicationEvents && (
         <ApplicationLoadButton
-          postsLength={appEventMap[bounty.id]?.length ?? 0}
+          postsLength={applicationEvents?.length ?? 0}
           loadFn={addMorePosts}
-          loading={loading}
+          loading={loading || status === "fetching"}
         />
       )}
     </>

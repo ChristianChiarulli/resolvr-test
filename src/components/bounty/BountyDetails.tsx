@@ -6,7 +6,7 @@ import { useParams } from "next/navigation";
 import { nip19, type Event } from "nostr-tools";
 import Markdown from "react-markdown";
 // @ts-expect-error no types
-import { NoComment } from "react-nocomment";
+import { NoComment } from "react-nocomment-fork";
 
 type Props = {
   bounty: Event;

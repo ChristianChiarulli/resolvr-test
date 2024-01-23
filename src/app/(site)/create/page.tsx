@@ -33,17 +33,14 @@ import useAuth from "~/hooks/useAuth";
 import { TAGS } from "~/lib/constants";
 import { cn, createIdentifier } from "~/lib/utils";
 import { revalidateCachedTag } from "~/nostr-query/server";
-import { type UsePublishEventParams } from "~/nostr-query/types";
-import usePublishEvent from "~/nostr-query/usePublishEvent";
-import useEventStore from "~/store/event-store";
 import { useRelayStore } from "~/store/relay-store";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { type EventTemplate, type Event } from "nostr-tools";
+import { type Event, type EventTemplate } from "nostr-tools";
 import { useForm } from "react-hook-form";
 import Markdown from "react-markdown";
+import { finishEvent, usePublish } from "react-nostr";
 import * as z from "zod";
-import { finishEvent } from "react-nostr";
 
 const formSchema = z.object({
   title: z
@@ -77,17 +74,10 @@ export default function CreateBounty() {
   const { pubRelays } = useRelayStore();
   const { pubkey, seckey } = useAuth();
 
-  const {
-    openBountyEvents,
-    setOpenBountyEvents,
-    postedBountyEvents,
-    setPostedBountyEvents,
-  } = useEventStore();
-
-  const params: UsePublishEventParams = {
+  const { publish, status, invalidateKeys } = usePublish({
     relays: pubRelays,
-  };
-  const { publishEvent, status } = usePublishEvent(params);
+  });
+
   const router = useRouter();
 
   function postSocialNote() {
@@ -140,15 +130,12 @@ export default function CreateBounty() {
 
     const event = await finishEvent(eventTemplate, seckey);
 
-    const onSeen = (event: Event) => {
-      if (openBountyEvents.length > 0) {
-        setOpenBountyEvents([event, ...openBountyEvents]);
-      }
-      if (postedBountyEvents.length > 0) {
-        setPostedBountyEvents([event, ...postedBountyEvents]);
-      }
+    const onSuccess = (_: Event) => {
+      // TODO: add this to react-nostr lib
       revalidateCachedTag("open-bounties");
       revalidateCachedTag(`posted-bounties-${pubkey}`);
+      // TODO: maybe make this callback async
+      void invalidateKeys(["open", "posted"]);
       if (shouldNotify) {
         postSocialNote();
       }
@@ -159,7 +146,9 @@ export default function CreateBounty() {
     // TODO: error toast
     if (!event) return;
 
-    await publishEvent(event, onSeen);
+    console.log(event);
+
+    await publish(event, onSuccess);
   }
 
   return (

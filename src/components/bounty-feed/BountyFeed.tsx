@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 import BountyCard from "./BountyCard";
 import BountyLoadButton from "./BountyLoadButton";
+import { useRelayStore } from "~/store/relay-store";
 
 type Props = {
   initialBounties?: Event[];
@@ -30,11 +31,13 @@ export default function BountiesFeed({
     });
   };
 
+  const { subRelays } = useRelayStore();
+
   const { events, status, loading, loadOlderEvents, noEvents } = useSubscribe({
     // initialEvents: initialBounties,
     eventKey,
     filter: filter,
-    relays: ["wss://nos.lol"],
+    relays: subRelays,
     onEventsNotFound: onEventsNotFound,
   });
 
@@ -62,7 +65,7 @@ export default function BountiesFeed({
               No bounties found
             </div>
             <div className="text-sm text-gray-500">
-              There are no more bounties to display at this time.
+              There are no bounties to display at this time.
             </div>
           </div>
         )}

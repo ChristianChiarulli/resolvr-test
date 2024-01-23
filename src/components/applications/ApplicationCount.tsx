@@ -24,7 +24,7 @@ export default function ApplicationCount({ bounty }: Props) {
 
   const aTag = useMemo(() => createATag(aTagParams), [aTagParams]);
 
-  const events = useBatchedEvents(8050, aTag, subRelays);
+  const events = useBatchedEvents(30051, aTag, subRelays);
 
   return <span>{!events ? "0" : events?.length ?? 0}</span>;
 }
