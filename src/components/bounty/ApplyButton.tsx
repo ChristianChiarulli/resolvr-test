@@ -2,11 +2,11 @@ import { useMemo, useState } from "react";
 
 import { SatoshiV2Icon } from "@bitcoin-design/bitcoin-icons-react/filled";
 import useAuth from "~/hooks/useAuth";
-import { type ATagParams } from "~/nostr-query/types";
 import { useRelayStore } from "~/store/relay-store";
-import { CheckSquare, Glasses, Lightbulb, UserPlus2 } from "lucide-react";
+import { CheckSquare, Lightbulb, UserPlus2 } from "lucide-react";
 import { type Event, type EventTemplate, type Filter } from "nostr-tools";
 import {
+  type ATagParams,
   createATag,
   createIdentifier,
   finishEvent,
@@ -90,7 +90,7 @@ export default function ApplyButton({ bounty }: Props) {
     const tags = [
       ["a", aTag, recommendedRelay],
       ["p", bounty.pubkey],
-      ["r", JSON.stringify(bounty)],
+      ["bounty", JSON.stringify(bounty)],
       ["s", "applied"],
       ["d", identifier],
     ];
@@ -141,7 +141,7 @@ export default function ApplyButton({ bounty }: Props) {
     const tags = [
       ["a", aTag, recommendedRelay],
       ["p", bounty.pubkey],
-      ["r", JSON.stringify(bounty)],
+      ["bounty", JSON.stringify(bounty)],
       ["s", "submitted"],
       ["d", identifier],
     ];

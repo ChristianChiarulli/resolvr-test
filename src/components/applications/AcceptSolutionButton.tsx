@@ -1,5 +1,4 @@
 import useAuth from "~/hooks/useAuth";
-import { revalidateCachedTag } from "~/nostr-query/server";
 import { useRelayStore } from "~/store/relay-store";
 import { Check } from "lucide-react";
 import { type Event, type EventTemplate } from "nostr-tools";
@@ -7,6 +6,7 @@ import { allTags, finishEvent, tag, usePublish, useZap } from "react-nostr";
 import { toast } from "sonner";
 
 import { Button } from "../ui/button";
+import { revalidateCachedTag } from "~/server";
 
 type Props = {
   applicationEvent: Event;
@@ -21,23 +21,17 @@ export default function AcceptSolutionButton({
 }: Props) {
   const { pubkey, seckey } = useAuth();
   const { pubRelays, subRelays } = useRelayStore();
-  const {
-    zap,
-    status: zapStatus,
-    sendPaymentResponse,
-    zapReceiptEvents,
-  } = useZap({
+  const { zap, status: zapStatus } = useZap({
     eventKey: `zap-${applicationEvent.id}`,
     relays: subRelays,
   });
   //
-  const { publish, status, invalidateKeys } = usePublish({
+  const { publish, removeEvent, addEvent, status } = usePublish({
     relays: pubRelays,
   });
 
   const sendZap = async () => {
     if (!pubkey) return;
-    console.log("in zap function");
 
     const onPaymentSuccess = (sendPaymentResponse: SendPaymentResponse) => {
       toast("Zap sent", {
@@ -51,17 +45,20 @@ export default function AcceptSolutionButton({
       });
     };
 
-    const onZapReceipts = (_: Event[]) => {
+    const onZapReceipts = (event: Event[]) => {
       toast("Zap Receipt", {
         description: "A receipt has been generated for this zap.",
       });
+      void handleCompleteBounty(event[0]);
     };
 
     const onNoZapReceipts = () => {
       toast("Zap sent", {
-        description: "Receipt not found, payment",
+        description: "Receipt not found",
       });
+      void handleCompleteBounty();
     };
+
     if (!recipientMetadata) {
       toast("Recipient not found", {
         description: "The recipient of this bounty could not be found.",
@@ -74,7 +71,7 @@ export default function AcceptSolutionButton({
     await zap({
       amount: Number(amount),
       recipientMetadata: recipientMetadata,
-      eventId: bountyEvent.id,
+      eventId: applicationEvent.id,
       content: "",
       secretKey: seckey,
       onPaymentSuccess,
@@ -84,18 +81,12 @@ export default function AcceptSolutionButton({
     });
   };
 
-  async function handleAcceptSolution(
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+  async function handleCompleteBounty(
+    zapReceiptEvent: Event | undefined = undefined,
   ) {
-    e.preventDefault();
-    if (!pubkey) {
-      // TODO: show error toast
-      return;
-    }
+    console.log("zapReceiptEvent", zapReceiptEvent);
 
-    console.log("gonna send zap");
-
-    await sendZap();
+    if (!pubkey) return;
 
     const identifier = tag("d", bountyEvent);
     const title = tag("title", bountyEvent);
@@ -114,6 +105,8 @@ export default function AcceptSolutionButton({
       ["reward", reward],
       ["c", currency],
       ["p", applicationEvent.pubkey],
+      ["e", applicationEvent.id],
+      // ["zap_receipt", JSON.stringify(zapReceiptEvent)],
       // TODO: find out why this is adding backticks
       // ["r", JSON.stringify(applicationEvent)],
     ];
@@ -147,34 +140,38 @@ export default function AcceptSolutionButton({
       const dTagValue = tag("d", bountyEvent);
       const bountyPubkey = bountyEvent.pubkey;
       revalidateCachedTag(`${dTagValue}-${bountyPubkey}`);
+      const eventKey = "currentBounty";
+      void removeEvent([eventKey], bountyEvent.id);
+      void addEvent(eventKey, event);
     };
 
     if (!event) {
-      // TODO: show error toast
+      toast("Update Failed", {
+        description: "Event not published.",
+      });
       return;
     }
 
+    console.log("event", event);
 
     await publish(event, onSuccess);
   }
 
+  async function handleAcceptSolution(
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+  ) {
+    e.preventDefault();
+
+    await sendZap();
+  }
+
   return (
-    // {tag("s", bountyEvent) === "submitted" && (
-    //   <span className="inline-flex h-9 items-center justify-center whitespace-nowrap rounded-md px-3 text-sm font-medium text-green-500 dark:text-green-400">
-    //     Solution Provided
-    //   </span>
-    // )}
-
-    // pubkey === bountyEvent.pubkey &&
-    // tag("s", bountyEvent) === "open" &&
-    // tag("s", applicationEvent) === "submitted" &&
-    // tag("p", bountyEvent) && (
-
     <Button
       onClick={handleAcceptSolution}
       variant="default"
       size="sm"
       className="flex gap-x-1"
+      disabled={status === "pending" || zapStatus === "pending"}
     >
       <Check className="mr-1 h-4 w-4" />
       Accept Solution

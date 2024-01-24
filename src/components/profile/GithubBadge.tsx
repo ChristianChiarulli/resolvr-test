@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
 
-import { validateGithub } from "~/nostr-query/server";
 import useEventStore from "~/store/event-store";
 import { CheckCircle, Github } from "lucide-react";
 import Link from "next/link";
@@ -8,6 +7,7 @@ import { nip19 } from "nostr-tools";
 
 import { Badge } from "../ui/badge";
 import { identityTag, profileContent } from "react-nostr";
+import { validateGithub } from "~/server";
 
 type Props = {
   pubkey: string;

@@ -32,7 +32,6 @@ import { Textarea } from "~/components/ui/textarea";
 import useAuth from "~/hooks/useAuth";
 import { TAGS } from "~/lib/constants";
 import { cn, createIdentifier } from "~/lib/utils";
-import { revalidateCachedTag } from "~/nostr-query/server";
 import { useRelayStore } from "~/store/relay-store";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -41,6 +40,7 @@ import { useForm } from "react-hook-form";
 import Markdown from "react-markdown";
 import { finishEvent, usePublish } from "react-nostr";
 import * as z from "zod";
+import { revalidateCachedTag } from "~/server";
 
 const formSchema = z.object({
   title: z
@@ -117,7 +117,7 @@ export default function CreateBounty() {
       ["title", title],
       ["s", "open"],
       ["reward", reward.toString()],
-      ["c", "bitcoin"],
+      ["c", "BTC"],
       ["t", tag],
     ];
 

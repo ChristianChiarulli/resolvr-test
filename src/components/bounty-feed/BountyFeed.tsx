@@ -13,6 +13,7 @@ type Props = {
   filter: Filter;
   eventKey: string;
   tag?: string;
+  showProfileInfo?: boolean;
 };
 
 export default function BountiesFeed({
@@ -20,6 +21,7 @@ export default function BountiesFeed({
   filter,
   eventKey,
   tag,
+  showProfileInfo,
 }: Props) {
   const onEventsNotFound = () => {
     toast("No bounties found", {
@@ -45,7 +47,7 @@ export default function BountiesFeed({
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
   ) {
     e.preventDefault();
-    await loadOlderEvents(eventKey, 3);
+    await loadOlderEvents(eventKey, 5);
   }
 
   return (
@@ -53,7 +55,7 @@ export default function BountiesFeed({
       <ul className="flex w-full flex-col">
         {(events.length > 0 ? events : initialBounties ?? []).map(
           (bountyEvent) => (
-            <BountyCard key={bountyEvent.id} bountyEvent={bountyEvent} />
+            <BountyCard key={bountyEvent.id} bountyEvent={bountyEvent} showProfileInfo={showProfileInfo} />
           ),
         )}
       </ul>

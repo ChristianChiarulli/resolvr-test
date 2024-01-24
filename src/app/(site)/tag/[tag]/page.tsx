@@ -17,7 +17,7 @@ export default async function TagPage({
 
   const filter: Filter = {
     kinds: [30050],
-    limit: 3,
+    limit: 10,
     "#t": [tag],
   };
 

@@ -18,7 +18,7 @@ export const authOptions: AuthOptions = {
           placeholder: "nsec...",
         },
       },
-      async authorize(credentials, req) {
+      async authorize(credentials, _) {
 
         if (!credentials) {
           return null;

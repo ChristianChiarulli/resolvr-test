@@ -13,7 +13,7 @@ type Props = {
 };
 
 export default function BountyDetails({ bounty }: Props) {
-  const { pubkey } = useAuth();
+  const { pubkey, seckey } = useAuth();
   const params = useParams();
   const { subRelays } = useRelayStore();
   const [npub, setNpub] = useState<string | undefined>(undefined);
@@ -33,7 +33,15 @@ export default function BountyDetails({ bounty }: Props) {
           <Markdown>{bounty.content}</Markdown>
         </article>
       </div>
-      <NoComment customBase={params.naddr} relays={subRelays} owner={npub} />
+      {pubkey && (
+        <NoComment
+          publicKey={pubkey}
+          privateKey={seckey}
+          customBase={params.naddr}
+          relays={subRelays}
+          owner={npub}
+        />
+      )}
     </div>
   );
 }

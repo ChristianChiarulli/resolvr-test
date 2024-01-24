@@ -51,14 +51,6 @@ export default async function BountyPage({
     return <InvalidNaddr />;
   }
 
-  // get bounty
-  // get bounty author
-  // get bounty applicants
-  // cache bounty
-  // cache bounty author
-  // cache bounty applicants
-  // pass
-
   const filter: Filter = {
     kinds: [kind],
     limit: 1,
@@ -67,7 +59,6 @@ export default async function BountyPage({
 
   const getCachedEvents = unstable_cache(
     async (relays: RelayUrl[], filter: Filter) => {
-      console.log("CACHING SINGLE BOUNTY EVENT");
       const bountyEvent = await get(
         relays ?? ["wss://nos.lol", "wss://relay.damus.io"],
         filter,

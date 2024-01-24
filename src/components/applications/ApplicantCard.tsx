@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/prefer-nullish-coalescing */
 /* eslint-disable @next/next/no-img-element */
 
+import useAuth from "~/hooks/useAuth";
 import { BOT_AVATAR_ENDPOINT } from "~/lib/constants";
 import { fromNow } from "~/lib/utils";
 import { useRelayStore } from "~/store/relay-store";
@@ -28,6 +29,7 @@ export default function ApplicationCard({
   bountyEvent,
 }: Props) {
   const applicantPubkey = applicationEvent.pubkey;
+  const { pubkey } = useAuth();
   const { subRelays } = useRelayStore();
   // console.log("BountyEvent", bountyEvent);
 
@@ -59,20 +61,23 @@ export default function ApplicationCard({
             {profileContent(profileEvent).name || shortNpub(applicantPubkey)}
           </span>
           <div className="flex items-center gap-x-1.5">
+
             {profileEvent &&
-              // pubkey === bountyEvent.pubkey &&
-              (tag("s", bountyEvent) === "open" ||
-              tag("s", bountyEvent) === "complete") &&
-
-              (
-                // tag("s", applicationEvent) === "submitted" &&
-                // tag("p", bountyEvent) && (
-
+              pubkey === bountyEvent.pubkey &&
+              tag("s", bountyEvent) === "open" && (
                 <AcceptSolutionButton
                   applicationEvent={applicationEvent}
                   bountyEvent={bountyEvent}
                   recipientMetadata={profileEvent}
                 />
+              )}
+
+            {profileEvent &&
+              applicationEvent.id === tag("e", bountyEvent) &&
+              tag("s", bountyEvent) === "complete" && (
+                <span className="inline-flex h-9 items-center justify-center whitespace-nowrap rounded-md px-3 text-sm font-medium text-green-500 dark:text-green-400">
+                  Solution Provided
+                </span>
               )}
 
             {events?.[0] && (

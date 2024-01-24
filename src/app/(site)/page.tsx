@@ -32,7 +32,7 @@ export default async function HomePage({
 
   const filter: Filter = {
     kinds: [30050],
-    limit: 3,
+    limit: 10,
   };
 
   if (selectedTab === "open") {
@@ -54,9 +54,6 @@ export default async function HomePage({
   }
   if (selectedTab === "posted") {
     cacheTags = [`posted-bounties-${publicKey}`];
-  }
-  if (selectedTab === "assigned") {
-    cacheTags = [`assigned-bounties-${publicKey}`];
   }
 
   const getCachedEvents = unstable_cache(
@@ -82,6 +79,7 @@ export default async function HomePage({
     <div className="w-full flex-col items-center">
       {loggedIn && (
         <div className="flex flex-col py-4">
+          {/* BUG: fix tabs not updating sometimes */}
           <Tabs defaultValue={selectedTab}>
             <div className="flex items-center justify-between">
               <h1 className="select-none text-center text-3xl font-bold">
@@ -97,11 +95,6 @@ export default async function HomePage({
                   <TabsTrigger asChild value="posted">
                     <Link href={"?tab=posted"} replace={true}>
                       Posted
-                    </Link>
-                  </TabsTrigger>
-                  <TabsTrigger asChild value="assigned">
-                    <Link href={"?tab=assigned"} replace={true}>
-                      Assigned
                     </Link>
                   </TabsTrigger>
                 </TabsList>

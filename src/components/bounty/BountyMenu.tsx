@@ -6,39 +6,27 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import useAuth from "~/hooks/useAuth";
-import { revalidateCachedTag } from "~/nostr-query/server";
-import { type UsePublishEventParams } from "~/nostr-query/types";
-import usePublishEvent from "~/nostr-query/usePublishEvent";
-import useEventStore from "~/store/event-store";
+import { revalidateCachedTag } from "~/server";
 import { useRelayStore } from "~/store/relay-store";
 import { MoreVertical } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { type Event, type EventTemplate } from "nostr-tools";
-
-import { useToast } from "../ui/use-toast";
-import { finishEvent } from "react-nostr";
+import { finishEvent, usePublish } from "react-nostr";
+import { toast } from "sonner";
 
 type Props = {
   bounty: Event;
 };
 
 export default function BountyMenu({ bounty }: Props) {
-  const { toast } = useToast();
   const { pubkey, seckey } = useAuth();
+
   const { pubRelays } = useRelayStore();
-  const {
-    openBountyEvents,
-    postedBountyEvents,
-    removeOpenBountyEvent,
-    removePostedBountyEvent,
-  } = useEventStore();
-  const router = useRouter();
-
-  const params: UsePublishEventParams = {
+  const { publish, status, removeEvent } = usePublish({
     relays: pubRelays,
-  };
+  });
 
-  const { publishEvent, status } = usePublishEvent(params);
+  const router = useRouter();
 
   async function handleDelete() {
     if (!pubkey) return;
@@ -55,26 +43,28 @@ export default function BountyMenu({ bounty }: Props) {
     const event = await finishEvent(eventTemplate, seckey);
 
     const onSeen = (_: Event) => {
-      if (openBountyEvents.length > 0) {
-        // setOpenBountyEvents([event, ...openBountyEvents]);
-        removeOpenBountyEvent(bounty.id);
-      }
-      if (postedBountyEvents.length > 0) {
-        removePostedBountyEvent(bounty.id);
-      }
       revalidateCachedTag("open-bounties");
       revalidateCachedTag(`posted-bounties-${pubkey}`);
-      // TODO: should probably revalidate assigned as well
-
+      void removeEvent(["open", "posted"], bounty.id);
       router.push("/");
-
-      toast({
-        title: "Bounty deleted",
+      toast("Bounty deleted", {
         description: "Your bounty has been deleted.",
       });
     };
 
-    await publishEvent(event, onSeen);
+    await publish(event, onSeen);
+  }
+
+  async function handleBroadcast() {
+    if (!pubkey) return;
+
+    const onSeen = (_: Event) => {
+      toast("Bounty was broadcast", {
+        description: "Your bounty has been broadcast.",
+      });
+    };
+
+    await publish(bounty, onSeen);
   }
 
   return (
@@ -85,7 +75,12 @@ export default function BountyMenu({ bounty }: Props) {
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="mt-2">
-        <DropdownMenuItem>Broadcast</DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={handleBroadcast}
+          disabled={status !== "idle"}
+        >
+          Broadcast
+        </DropdownMenuItem>
         {/* <DropdownMenuItem>View Raw</DropdownMenuItem> */}
         {pubkey === bounty.pubkey && (
           <>
