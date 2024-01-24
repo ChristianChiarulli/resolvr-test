@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useEffect } from "react";
@@ -32,6 +33,7 @@ import { toast } from "sonner";
 import * as z from "zod";
 
 const profileFormSchema = z.object({
+  picture: z.string(),
   username: z
     .string()
     .min(1, {
@@ -82,6 +84,7 @@ export default function SettingsForm({ pubkey, secretKey }: Props) {
     const gistId = identityTag("github", profileEvent?.tags ?? [])?.[2];
     if (profile) {
       reset({
+        picture: profile.picture,
         username: profile.name,
         website: profile.website,
         bio: profile.about,
@@ -100,7 +103,7 @@ export default function SettingsForm({ pubkey, secretKey }: Props) {
   };
 
   async function onSubmit(data: ProfileFormValues) {
-    const { username, website, bio, lud16, github, gist } = data;
+    const { picture, username, website, bio, lud16, github, gist } = data;
 
     if (!pubkey) return;
 
@@ -128,6 +131,7 @@ export default function SettingsForm({ pubkey, secretKey }: Props) {
       }
     }
 
+    profile.picture = picture;
     profile.name = username;
     profile.website = website;
     profile.about = bio;
@@ -162,6 +166,28 @@ export default function SettingsForm({ pubkey, secretKey }: Props) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <FormField
+          control={form.control}
+          name="picture"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Picture</FormLabel>
+              <FormControl>
+                <div className="flex items-center gap-x-2">
+                  <img
+                    src={field.value}
+                    alt=""
+                    className="aspect-square w-16 rounded-md border border-border dark:border-border"
+                  />
+
+                  <Input {...field} />
+                </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <FormField
           control={form.control}
           name="username"
