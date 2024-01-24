@@ -68,7 +68,7 @@
     --input: 215 28% 17% /* gray-800 */;
     --ring: 244 76% 59% /* indigo-600 */;
 
-    --nc-background: #030712;
+    --nc-background: #040816;
     --nc-container-font-family: arial;
     --nc-container-font-size: 1.2em;
     --nc-comment-author-font-size: 1.2em;
@@ -77,12 +77,14 @@
     --nc-comment-date-color: inherit;
     --nc-comment-date-font-family: sans-serif;
     --nc-comment-date-font-size: 0.7em;
+    --nc-comment-content-color: #fff;
     --nc-link-text-decor: none;
     --nc-link-text-decor-hover: underline;
     --nc-textarea-font-family: inherit;
     --nc-textarea-font-size: inherit;
     --nc-text-background: #111827;
-    --nc-text-color: #f9fafb;
+    --nc-hover-background: #333c4c; 
+    --nc-text-color: #d1d5db;
     --nc-text-color-dark: #9ca3af;
     --nc-primary-color: #374151;
     --nc-primary-contrast: #f9fafb;
