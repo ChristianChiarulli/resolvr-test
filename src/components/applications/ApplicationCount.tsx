@@ -2,7 +2,12 @@ import { useMemo } from "react";
 
 import { useRelayStore } from "~/store/relay-store";
 import { type Event } from "nostr-tools";
-import { type ATagParams, createATag, tag, useBatchedEvents } from "react-nostr";
+import {
+  createATag,
+  tag,
+  useBatchedEvents,
+  type ATagParams,
+} from "react-nostr";
 
 type Props = {
   bounty: Event;
@@ -22,7 +27,7 @@ export default function ApplicationCount({ bounty }: Props) {
 
   const aTag = useMemo(() => createATag(aTagParams), [aTagParams]);
 
-  const eventKey = `apps-${aTag}`;
+  const eventKey = `apps`;
 
   const events = useBatchedEvents(30051, aTag, eventKey, subRelays);
 
