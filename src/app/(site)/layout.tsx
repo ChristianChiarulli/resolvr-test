@@ -1,5 +1,7 @@
 import Footer from "~/components/footer/Footer";
 import Header from "~/components/header/Header";
+import RelaySheet from "~/components/relays/RelaySheet";
+
 
 export default function RootLayout({
   children,
@@ -15,7 +17,7 @@ export default function RootLayout({
               <div className="mx-auto max-w-4xl">
                 <Header />
                 {children}
-                {/* <RelayMenu /> */}
+                <RelaySheet />
                 <Footer />
               </div>
             </div>

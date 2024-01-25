@@ -1,3 +1,5 @@
+import { RelayUrl } from "react-nostr";
+
 export const TAGS = [
   "bitcoin",
   "nostr",
@@ -26,3 +28,8 @@ export const TAGS = [
 ];
 
 export const BOT_AVATAR_ENDPOINT = "https://api.dicebear.com/7.x/bottts-neutral/svg?seed=";
+
+export const DEFAULT_SUBSCRIBE_RELAYS: RelayUrl[] = ["wss://nos.lol", "wss://relay.damus.io"];
+export const DEFAULT_PUBLISH_RELAYS: RelayUrl[] = ["wss://nos.lol", "wss://relay.damus.io"];
+
+

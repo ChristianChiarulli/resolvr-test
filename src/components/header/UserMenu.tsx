@@ -6,9 +6,12 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import useAuth from "~/hooks/useAuth";
+import { useRelayStore } from "~/store/relay-store";
 import { signOut } from "next-auth/react";
 import Link from "next/link";
 import { nip19 } from "nostr-tools";
+
+import RelaySheet from "../relays/RelaySheet";
 
 type Props = {
   children: React.ReactNode;
@@ -16,6 +19,8 @@ type Props = {
 
 export default function UserMenu({ children }: Props) {
   const { pubkey } = useAuth();
+
+  const { setRelaySheetOpen } = useRelayStore();
 
   return (
     <DropdownMenu>
@@ -29,7 +34,11 @@ export default function UserMenu({ children }: Props) {
         <DropdownMenuItem asChild>
           <Link href="/settings">Settings</Link>
         </DropdownMenuItem>
-        {/* <DropdownMenuItem>relays</DropdownMenuItem> */}
+        <DropdownMenuItem onClick={() => setRelaySheetOpen(true)}>
+          {/* <RelaySheet> */}
+            Relays
+          {/* </RelaySheet> */}
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onClick={() => signOut()}
