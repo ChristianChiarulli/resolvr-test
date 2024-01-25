@@ -60,9 +60,10 @@ export default function BountyMenu({ bounty }: Props) {
 
     const onSeen = (_: Event) => {
       toast("Bounty was broadcast", {
-        description: "Your bounty has been broadcast.",
+        description: "Bounty has been broadcast to all publish relays.",
       });
     };
+
 
     await publish(bounty, onSeen);
   }

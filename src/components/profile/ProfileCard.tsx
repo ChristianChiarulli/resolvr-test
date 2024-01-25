@@ -6,12 +6,8 @@ import { useRelayStore } from "~/store/relay-store";
 import { Github, Globe, Zap } from "lucide-react";
 import { profileContent, shortNpub, useBatchedProfiles } from "react-nostr";
 
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from "../ui/card";
+import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
+import ProfileMenu from "./ProfileMenu";
 
 type Props = {
   pubkey: string;
@@ -37,12 +33,16 @@ export default function ProfileCard({ pubkey }: Props) {
               alt=""
               className="aspect-square w-24 rounded-md border border-border dark:border-border"
             />
+
             <div className="flex flex-col gap-y-1">
               <span className="text-3xl">
                 {profileContent(profileEvent).name}
               </span>
-              <span className="text-muted-foreground">
-                {profileContent(profileEvent).nip05 ?? shortNpub(pubkey)}
+              <span className="flex items-center gap-x-1">
+                <span className="text-muted-foreground">
+                  {profileContent(profileEvent).nip05 ?? shortNpub(pubkey)}
+                </span>
+                <ProfileMenu profileEvent={profileEvent} />
               </span>
             </div>
           </div>

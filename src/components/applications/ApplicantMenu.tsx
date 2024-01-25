@@ -68,6 +68,18 @@ export default function ApplicantMenu({ applicantEvent, bountyEvent }: Props) {
     await publish(event, onSeen);
   }
 
+  async function handleBroadcast() {
+    if (!pubkey) return;
+
+    const onSeen = (_: Event) => {
+      toast("Application was broadcast", {
+        description: "Application has been broadcast to all publish relays.",
+      });
+    };
+
+    await publish(applicantEvent, onSeen);
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
@@ -76,7 +88,12 @@ export default function ApplicantMenu({ applicantEvent, bountyEvent }: Props) {
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="mt-2">
-        <DropdownMenuItem>Broadcast</DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={handleBroadcast}
+          disabled={status !== "idle"}
+        >
+          Broadcast
+        </DropdownMenuItem>
         {/* <DropdownMenuItem>View Raw</DropdownMenuItem> */}
         {pubkey === applicantEvent.pubkey && (
           <>
